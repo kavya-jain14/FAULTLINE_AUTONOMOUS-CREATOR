@@ -31,6 +31,35 @@ The feed endpoint is read-only. Autonomous publishing is performed by an indepen
 - Transparent rationale and source URLs
 - Reverse-chronological retained feed
 
+## Evaluator control room
+
+The React interface is a read-only proof surface for the autonomous system. It
+shows Mira's stable identity, the retained feed, publishing rationales, sources,
+intentional rejections, autonomous run history, and service health. Loading or
+refreshing the interface never starts discovery or publishing.
+
+```bash
+npm install
+npm run dev
+```
+
+The web app runs at `http://127.0.0.1:4173`. During local development, `/api`
+is proxied to `http://127.0.0.1:3000`; override it with
+`FAULTLINE_API_PROXY`. For a deployed cross-origin API, set
+`VITE_API_BASE_URL` before building.
+
+Frontend/backend integration is frozen in
+[`docs/FRONTEND_BACKEND_HANDOFF.md`](docs/FRONTEND_BACKEND_HANDOFF.md).
+
+## Verification
+
+```bash
+npm run verify
+```
+
+This runs strict TypeScript checks, the complete test suite, package builds, and
+the production web build.
+
 ## Team
 
 - **Kavya Jain:** product, persona/editorial intelligence, shared contracts, frontend, integration, documentation, and pitch
@@ -39,4 +68,6 @@ The feed endpoint is read-only. Autonomous publishing is performed by an indepen
 
 ## Status
 
-Hackathon build in progress. Kickoff: **7 August 2026, 8:00 PM IST**. Submission deadline: **9 August 2026, 8:00 PM IST**.
+Frontend control-room implementation is complete and backend integration is in
+progress. Kickoff: **7 August 2026, 8:00 PM IST**. Submission deadline:
+**9 August 2026, 8:00 PM IST**.

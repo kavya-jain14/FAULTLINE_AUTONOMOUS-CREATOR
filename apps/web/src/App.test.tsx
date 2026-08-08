@@ -1,0 +1,181 @@
+// @vitest-environment jsdom
+
+import "@testing-library/jest-dom/vitest";
+
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import App from "./App";
+
+const snapshot = {
+  agentId: "agent-mira",
+  autonomy: {
+    initializedAt: "2026-08-08T12:00:00Z",
+    lastRunAt: "2026-08-08T12:30:00Z",
+    nextRunAt: "2026-08-08T13:00:00Z",
+    postsPublished: 2,
+    candidatesRejected: 1,
+    workerState: "idle",
+  },
+  editorialLedger: [
+    {
+      id: "decision-1",
+      title: "Benchmark claim without reproducible evidence",
+      finalScore: 48,
+      reason: "The primary evidence was insufficient for a material claim.",
+      sourceUrl: "https://example.com/rejected",
+      decidedAt: "2026-08-08T12:25:00Z",
+    },
+  ],
+  runs: [
+    {
+      id: "run-1",
+      startedAt: "2026-08-08T12:29:00Z",
+      completedAt: "2026-08-08T12:30:00Z",
+      status: "completed",
+      discovered: 3,
+      rejected: 1,
+      published: 2,
+      summary: "Two reliability signals cleared the editorial threshold.",
+    },
+  ],
+  health: [
+    {
+      key: "worker",
+      label: "Autonomous worker",
+      state: "healthy",
+      detail: "Heartbeat received on schedule.",
+      checkedAt: "2026-08-08T12:30:00Z",
+    },
+  ],
+};
+
+function response(payload: unknown, status = 200): Response {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+function installConnectedApi(): ReturnType<typeof vi.fn> {
+  const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.includes("/api/agent/control-room")) return response(snapshot);
+    if (url.includes("/api/agent/feed")) {
+      return response({
+        posts: [
+          {
+            id: "older",
+            createdAt: "2026-08-08T12:10:00Z",
+            text: "Older reliability note",
+            rationale: "Selected for practical relevance at the time.",
+            sources: ["https://example.com/older"],
+          },
+          {
+            id: "newer",
+            createdAt: "2026-08-08T12:20:00Z",
+            text: "Newest reliability note",
+            rationale: "Selected because a primary source changed builder risk now.",
+            sources: ["https://research.example.com/newer"],
+          },
+        ],
+      });
+    }
+    if (url.includes("/api/agent/init")) return response({ agentId: "agent-mira" });
+    return response({ message: "not found" }, 404);
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+}
+
+beforeEach(() => {
+  window.localStorage.clear();
+  window.history.replaceState({}, "", "/");
+});
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
+
+describe("FAULTLINE control room", () => {
+  it("does not call the API before deliberate initialization", () => {
+    const fetchMock = installConnectedApi();
+    render(<App />);
+
+    expect(screen.getByText("The signal is noisy.")).toBeInTheDocument();
+    expect(screen.getByText("Mira")).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("initializes once, polls both read endpoints, and renders newest first", async () => {
+    const user = userEvent.setup();
+    const fetchMock = installConnectedApi();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /initialize autonomous editor/i }));
+
+    await screen.findByRole("heading", { name: "Mira" });
+    const initCall = fetchMock.mock.calls.find(([input]) =>
+      String(input).includes("/api/agent/init"),
+    );
+    expect(initCall?.[1]).toMatchObject({ method: "POST" });
+
+    await screen.findByText("Newest reliability note");
+    const cards = document.querySelectorAll(".feed-card");
+    expect(cards).toHaveLength(2);
+    expect(within(cards[0] as HTMLElement).getByText("Newest reliability note")).toBeVisible();
+    expect(screen.getByText(/primary source changed builder risk now/i)).toBeVisible();
+    expect(screen.getByRole("link", { name: /research.example.com/i })).toBeVisible();
+
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/api/agent/feed"))).toBe(true);
+    expect(
+      fetchMock.mock.calls.some(([input]) => String(input).includes("/api/agent/control-room")),
+    ).toBe(true);
+  });
+
+  it("shows intentional rejection evidence without relying on color", async () => {
+    const user = userEvent.setup();
+    installConnectedApi();
+    window.localStorage.setItem("faultline.connectedAgentId", "agent-mira");
+    render(<App />);
+
+    await screen.findByText("Newest reliability note");
+    await user.click(screen.getByRole("button", { name: /rejection ledger/i }));
+
+    expect(screen.getByText("Benchmark claim without reproducible evidence")).toBeVisible();
+    expect(screen.getByLabelText("Rejected")).toBeVisible();
+    expect(screen.getByLabelText("Editorial score 48 out of 100")).toBeVisible();
+  });
+
+  it("keeps the published feed readable when telemetry is unavailable", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/api/agent/control-room")) {
+        return response({ message: "worker telemetry unavailable" }, 503);
+      }
+      return response({
+        posts: [
+          {
+            id: "post-1",
+            createdAt: "2026-08-08T12:20:00Z",
+            text: "Verified post remains readable",
+            rationale: "The feed endpoint remains independent from telemetry.",
+            sources: ["https://example.com/source"],
+          },
+        ],
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    window.localStorage.setItem("faultline.connectedAgentId", "agent-mira");
+
+    render(<App />);
+
+    await screen.findByText("Verified post remains readable");
+    await waitFor(() =>
+      expect(screen.getByText("Operational telemetry is degraded")).toBeVisible(),
+    );
+    expect(screen.getByText("Verified post remains readable")).toBeVisible();
+  });
+});

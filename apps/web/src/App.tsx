@@ -1,0 +1,170 @@
+import { useCallback, useMemo, useState } from "react";
+
+import { MIRA_PERSONA } from "@faultline/agent-core";
+
+import { AutonomyStrip } from "./components/autonomy-strip";
+import { EditorialLedger } from "./components/editorial-ledger";
+import { FeedPanel } from "./components/feed-panel";
+import { Header } from "./components/header";
+import { HealthDrawer } from "./components/health-drawer";
+import { InitializePanel } from "./components/initialize-panel";
+import { Masthead } from "./components/masthead";
+import { RunTimeline } from "./components/run-timeline";
+import { StatusBanner } from "./components/status-banner";
+import { useAgentControlRoom } from "./hooks/use-agent-control-room";
+import { formatUtc } from "./lib/time";
+
+type DeskView = "feed" | "ledger";
+
+export default function App(): React.JSX.Element {
+  const controlRoom = useAgentControlRoom();
+  const [deskView, setDeskView] = useState<DeskView>("feed");
+  const [healthOpen, setHealthOpen] = useState(false);
+
+  const openHealth = useCallback(() => setHealthOpen(true), []);
+  const closeHealth = useCallback(() => setHealthOpen(false), []);
+
+  const initializeMira = useCallback(
+    () =>
+      controlRoom.initialize({
+        name: MIRA_PERSONA.name,
+        domain: MIRA_PERSONA.domain,
+      }),
+    [controlRoom],
+  );
+
+  const completedRuns = useMemo(
+    () =>
+      controlRoom.snapshot?.runs.filter((run) => run.status === "completed") ?? [],
+    [controlRoom.snapshot],
+  );
+
+  const telemetryUnavailable = controlRoom.telemetryError !== null;
+  const degradedServices =
+    controlRoom.snapshot?.health.filter(
+      (service) => service.state === "degraded" || service.state === "offline",
+    ) ?? [];
+
+  return (
+    <div className="app-shell" id="top">
+      <a className="skip-link" href="#main-content">
+        Skip to main content
+      </a>
+      <Header
+        connected={controlRoom.agentId !== null}
+        isRefreshing={controlRoom.isRefreshing}
+        onRefresh={() => void controlRoom.refresh()}
+        onDisconnect={controlRoom.disconnect}
+        onOpenHealth={openHealth}
+      />
+
+      {controlRoom.agentId === null ? (
+        <InitializePanel
+          isInitializing={controlRoom.isInitializing}
+          error={controlRoom.initializationError}
+          onInitialize={initializeMira}
+          onConnect={controlRoom.connect}
+        />
+      ) : (
+        <main className="control-room" id="main-content">
+          <Masthead
+            agentId={controlRoom.agentId}
+            workerState={controlRoom.snapshot?.autonomy.workerState ?? null}
+          />
+
+          <AutonomyStrip
+            status={controlRoom.snapshot?.autonomy ?? null}
+            postsFallback={controlRoom.posts.length}
+            loading={controlRoom.isLoading}
+          />
+
+          <StatusBanner
+            feedError={controlRoom.feedError}
+            telemetryError={controlRoom.telemetryError}
+            onRetry={() => void controlRoom.refresh()}
+          />
+
+          {degradedServices.length > 0 && controlRoom.telemetryError === null ? (
+            <button className="degraded-notice" type="button" onClick={openHealth}>
+              <span>Operational warning</span>
+              {degradedServices.map((service) => service.label).join(", ")} reported
+              {degradedServices.length === 1 ? " a" : ""} degraded state
+              <strong>Inspect health ↗</strong>
+            </button>
+          ) : null}
+
+          <nav className="desk-tabs" aria-label="Editorial records">
+            <button
+              className={deskView === "feed" ? "is-active" : ""}
+              type="button"
+              aria-current={deskView === "feed" ? "page" : undefined}
+              onClick={() => setDeskView("feed")}
+            >
+              Published feed
+              <span>{controlRoom.posts.length}</span>
+            </button>
+            <button
+              className={deskView === "ledger" ? "is-active" : ""}
+              type="button"
+              aria-current={deskView === "ledger" ? "page" : undefined}
+              onClick={() => setDeskView("ledger")}
+            >
+              Rejection ledger
+              <span>{controlRoom.snapshot?.editorialLedger.length ?? 0}</span>
+            </button>
+          </nav>
+
+          <div className="desk-grid">
+            <div className="desk-primary">
+              {deskView === "feed" ? (
+                <FeedPanel
+                  posts={controlRoom.posts}
+                  loading={controlRoom.isLoading}
+                  feedError={controlRoom.feedError}
+                  hadCompletedRun={completedRuns.length > 0}
+                />
+              ) : (
+                <EditorialLedger
+                  items={controlRoom.snapshot?.editorialLedger ?? []}
+                  unavailable={telemetryUnavailable}
+                />
+              )}
+            </div>
+
+            <aside className="desk-sidebar">
+              <RunTimeline
+                runs={controlRoom.snapshot?.runs ?? []}
+                unavailable={telemetryUnavailable}
+                onOpenHealth={openHealth}
+              />
+
+              <div className="read-only-note">
+                <span>Read-only proof surface</span>
+                <p>
+                  Viewing or refreshing this dashboard never starts an autonomous
+                  run. New posts can only arrive from the scheduled worker.
+                </p>
+              </div>
+            </aside>
+          </div>
+
+          <footer className="control-footer">
+            <span>
+              {controlRoom.lastSyncedAt
+                ? `Last interface sync ${formatUtc(controlRoom.lastSyncedAt)}`
+                : "Waiting for first interface sync"}
+            </span>
+            <span>Evidence before excitement · Failure mode before feature list</span>
+          </footer>
+        </main>
+      )}
+
+      <HealthDrawer
+        open={healthOpen}
+        health={controlRoom.snapshot?.health ?? []}
+        unavailable={telemetryUnavailable}
+        onClose={closeHealth}
+      />
+    </div>
+  );
+}
