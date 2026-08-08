@@ -49,6 +49,19 @@ This log records material AI assistance used during the Vicodathon build. It is 
 - **Rejected or changed AI suggestions:** Kept the dashboard observational and the autonomous worker independent; used external browser request interception only for visual QA fixtures, leaving the production client fixture-free.
 - **Secrets or personal data:** None included.
 
+## 2026-08-08 — Fresh-clone development startup fix
+
+- **Tool:** ChatGPT Work (Codex) with GitHub integration
+- **Human owner/reporter:** Kavya Jain
+- **Objective:** Make the documented frontend startup command reliable on a clean macOS clone.
+- **Observed failure:** Vite started before internal workspace packages emitted their `dist` entrypoints, so `@faultline/agent-core` and `@faultline/contracts` could not resolve.
+- **Root cause:** Production verification ran `tsc -b`, but the root development script had no equivalent prerequisite; existing build artifacts masked the gap during initial local QA.
+- **Change used:** Added a root `predev` lifecycle step that builds both referenced TypeScript packages before Vite starts.
+- **Human verification requested:** Pull the patch and rerun `npm run dev` from the existing clone.
+- **Automated verification performed:** Fresh-artifact startup test plus the full typecheck, test, build, and whitespace suite.
+- **Related issue/PR:** Issue #4; PR #2.
+- **Secrets or personal data:** None included.
+
 ## Entry template
 
 Copy this section for each material AI-assisted change:

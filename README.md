@@ -43,6 +43,9 @@ npm install
 npm run dev
 ```
 
+The root `predev` step compiles the internal contracts and agent-core workspace
+packages automatically, so this command works directly after a fresh clone.
+
 The web app runs at `http://127.0.0.1:4173`. During local development, `/api`
 is proxied to `http://127.0.0.1:3000`; override it with
 `FAULTLINE_API_PROXY`. For a deployed cross-origin API, set
