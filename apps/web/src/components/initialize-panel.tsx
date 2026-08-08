@@ -36,15 +36,18 @@ export function InitializePanel({
         </p>
 
         <div className="persona-proof">
-          <div className="mira-monogram" aria-hidden="true">
-            M
-          </div>
-          <div>
-            <span className="proof-label">Editorial identity</span>
+          <div className="persona-heading">
+            <span className="proof-label">Editor on record</span>
             <strong>Mira</strong>
-            <p>{MIRA_PERSONA.role}</p>
           </div>
-          <ShieldCheck aria-label="Persona locked" />
+          <p>{MIRA_PERSONA.role}</p>
+          <div className="persona-lock">
+            <ShieldCheck aria-hidden="true" />
+            <span>
+              Identity fixed
+              <small>Voice consistent</small>
+            </span>
+          </div>
         </div>
 
         {error !== null ? (
@@ -70,48 +73,31 @@ export function InitializePanel({
       <aside className="operating-card" aria-label="Mira editorial decision system">
         <header className="decision-header">
           <div>
-            <div className="card-kicker">Mira’s editorial gate</div>
-            <h2>Judgment before generation.</h2>
+            <div className="card-kicker">The editorial standard</div>
+            <h2>Mira publishes only when the signal earns it.</h2>
           </div>
           <div className="gate-score" aria-label="Publish threshold 72 out of 100">
             <strong>72</strong>
-            <span>publish bar</span>
+            <span>minimum</span>
           </div>
         </header>
 
-        <div className="discovery-rail">
-          <span>01 · Discover</span>
-          <p>Primary technical sources enter as untrusted evidence.</p>
-        </div>
-
-        <section className="judgment-gate" aria-labelledby="judgment-title">
-          <div className="gate-label">
+        <section className="decision-route" aria-label="Autonomous editorial route">
+          <article>
+            <span>01</span>
+            <div>
+              <strong>Discover</strong>
+              <p>Read live primary technical sources.</p>
+            </div>
+          </article>
+          <article className="route-decision">
             <span>02</span>
-            <h3 id="judgment-title">Decision evidence</h3>
-          </div>
-          <dl className="decision-factors">
             <div>
-              <dt>Evidence quality</dt>
-              <dd>Required</dd>
+              <strong>Decide</strong>
+              <p>Test evidence, builder consequence, and novelty.</p>
             </div>
-            <div>
-              <dt>Builder consequence</dt>
-              <dd>Material</dd>
-            </div>
-            <div>
-              <dt>Novel vs memory</dt>
-              <dd>Distinct</dd>
-            </div>
-          </dl>
-          <div className="reject-row">
-            <strong>Hard reject</strong>
-            <span>Unsupported</span>
-            <span>Repeated</span>
-            <span>No consequence</span>
-          </div>
-        </section>
-
-        <div className="after-gate">
+            <em>72+ continues</em>
+          </article>
           <article>
             <span>03</span>
             <div>
@@ -123,9 +109,14 @@ export function InitializePanel({
             <span>04</span>
             <div>
               <strong>Publish</strong>
-              <p>Append only qualified field notes.</p>
+              <p>Append a sourced field note with its rationale.</p>
             </div>
           </article>
+        </section>
+
+        <div className="reject-note">
+          <strong>Below the line</strong>
+          <p>Unsupported · repeated · no builder consequence</p>
         </div>
 
         <div className="existing-agent">

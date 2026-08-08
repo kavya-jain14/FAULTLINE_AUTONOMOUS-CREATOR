@@ -75,6 +75,19 @@ This log records material AI assistance used during the Vicodathon build. It is 
 - **Related issue/PR:** Issue #5; PR #2.
 - **Secrets or personal data:** None included.
 
+## 2026-08-09 — KAVYA-05 responsive landing refinement
+
+- **Tool:** ChatGPT Work (Codex) with GitHub integration
+- **Human owner:** Kavya Jain
+- **Objective:** Correct the visible scrollbar, device-height overflow, right-rail theme mismatch, generic AI-dashboard typography, and weak boxed Mira monogram observed during live screen review.
+- **Interaction summary:** Kavya supplied device screenshots and requested that the strong left hero remain intact while the right decision system adopts the primary oxblood language, Mira's identity integrates naturally, and common laptop viewports fit as a single screen.
+- **Output used:** Hid the browser scrollbar without disabling scroll; constrained the desktop landing to the small viewport; replaced the boxed decision matrix with a quieter editorial route; restyled the gate in oxblood; removed the `M` tile in favor of an editor-on-record signature and fixed-identity status; retained landing → autonomous control room as the complete product flow.
+- **Files influenced:** `apps/web/src/components/initialize-panel.tsx`, `apps/web/src/styles.css`, frontend tests, and this log.
+- **Human constraints applied:** Preserved the left headline and publication-led palette; avoided extra marketing pages, auth screens, visual clutter, and unreadably compressing the mobile layout.
+- **Automated verification performed:** Strict TypeScript, all 20 unit/component tests, production build, and whitespace validation passed. Headless captures at 1440×800, 1366×768, and 1024×768 measured zero horizontal and vertical overflow; 390px mobile measured zero horizontal overflow and a hidden scrollbar; no console errors occurred.
+- **Related issue/PR:** Issue #6; PR #2.
+- **Secrets or personal data:** None included.
+
 ## Entry template
 
 Copy this section for each material AI-assisted change:
