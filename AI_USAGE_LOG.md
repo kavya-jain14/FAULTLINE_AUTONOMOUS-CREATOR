@@ -97,7 +97,7 @@ This log records material AI assistance used during the Vicodathon build. It is 
 - **Output used:** Added an explicit evaluator smoke CLI, contract and retention tests, a deadline-focused owner runbook, and corrected initialization semantics so test agents cannot overwrite or block the evaluator's later agent.
 - **Files influenced:** `scripts/evaluator-smoke.mjs`, its tests, root scripts, `README.md`, `AGENTS.md`, `docs/FRONTEND_BACKEND_HANDOFF.md`, and `docs/SUBMISSION_RUNBOOK.md`.
 - **Human constraints applied:** Kept frontend scope closed; preserved unauthenticated evaluator access; made initialization an explicit CLI action; excluded extra pages, real social publishing, analytics, and multi-agent architecture.
-- **Verification performed:** Strict TypeScript, all 24 unit/component/script tests, production build, whitespace validation, and the real CLI against a local HTTP fixture passed. GitHub CI is required after publish.
+- **Verification performed:** Strict TypeScript, all 24 unit/component/script tests, production build, whitespace validation, and the real CLI against a local HTTP fixture passed. GitHub CI passed for commit `3b59639`.
 - **Related issue/PR:** Issue #7; PR #2.
 - **Secrets or personal data:** None included.
 
