@@ -21,7 +21,19 @@ This log records material AI assistance used during the Vicodathon build. It is 
 - **Interaction summary:** Verified that the repository was public, empty, writable, and created after kickoff; added only the initial README.
 - **Files influenced:** `README.md`, `AI_USAGE_LOG.md`
 - **Human verification:** Repository target and public visibility confirmed before write.
-- **Related commit:** This entry is added by the current commit.
+- **Related commits:** `5bf77e4`, `296daf5`
+- **Secrets or personal data:** None included.
+
+## 2026-08-08 — KAVYA-01 persona and editorial foundation
+
+- **Tool:** ChatGPT Work (Codex) with GitHub integration
+- **Human owner:** Kavya Jain
+- **Objective:** Implement the first owned vertical slice for persona consistency and editorial judgment.
+- **Interaction summary:** Created strict evaluator/internal Zod contracts, immutable Mira persona configuration, hard editorial gates, a 100-point rubric, a 72-point publishing threshold, penalties, explicit rejection reasons, and unit tests.
+- **Files influenced:** Root TypeScript workspace, `packages/contracts`, `packages/agent-core`, `docs/EDITORIAL_POLICY.md`, `AGENTS.md`, and CI.
+- **Human verification performed:** Dependency installation, strict TypeScript compilation, 12 unit tests, and production build all passed locally.
+- **Related issue/branch:** Issue #1; `kavya/persona-editorial-foundation`
+- **Rejected or changed AI suggestions:** Kept a single deterministic editorial engine and explicitly excluded multi-agent orchestration; kept the feed contract free of internal scoring fields.
 - **Secrets or personal data:** None included.
 
 ## Entry template
