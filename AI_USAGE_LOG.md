@@ -45,7 +45,7 @@ This log records material AI assistance used during the Vicodathon build. It is 
 - **Files influenced:** `apps/web`, control-room contracts in `packages/contracts`, root workspace scripts, CI, README, and frontend/backend handoff documentation.
 - **Human constraints applied:** Kept the visual system warm black/navy with restrained signal blue; avoided chatbot, neon-cyberpunk, stock AI imagery, and client-fabricated production posts; prioritized autonomy status and feed on mobile.
 - **Human verification performed:** Strict TypeScript, 20 unit/component tests, production Vite build, and automated desktop/mobile browser captures with zero console errors or horizontal overflow.
-- **Related issue/branch:** Issue #3; frontend feature branch pending publication.
+- **Related issue/PR/commit:** Issue #3; PR #2; `8ef87a0`.
 - **Rejected or changed AI suggestions:** Kept the dashboard observational and the autonomous worker independent; used external browser request interception only for visual QA fixtures, leaving the production client fixture-free.
 - **Secrets or personal data:** None included.
 
