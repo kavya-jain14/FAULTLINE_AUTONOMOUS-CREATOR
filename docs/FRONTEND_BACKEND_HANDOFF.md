@@ -66,9 +66,11 @@ Success:
 }
 ```
 
-Persist the agent, persona, initialization time, worker schedule, and memory
-before responding. A duplicate initialization attempt should return a clear
-`409` response; it must not silently replace durable state.
+Persist the new agent, persona, initialization time, worker schedule, and memory
+before responding. Every successful call creates a new durable `agentId` and
+must never replace an existing agent. The evaluator and frontend each call this
+endpoint once in their own flow; do not enforce a global singleton that would
+let a manual test block the evaluator's later initialization.
 
 ## 2. Retrieve the evaluator feed
 

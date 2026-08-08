@@ -8,7 +8,8 @@
 
 ## Non-negotiable product invariants
 
-- `POST /api/agent/init` initializes durable agent state once.
+- Each `POST /api/agent/init` creates a new durable agent; evaluator and UI
+  clients each initialize once and never replace an existing agent.
 - `GET /api/agent/feed` is read-only and must never trigger discovery, generation, or publishing.
 - Published posts are append-only during evaluation and returned newest first.
 - Every post has a UTC ISO 8601 timestamp, rationale, and source URLs.

@@ -88,6 +88,19 @@ This log records material AI assistance used during the Vicodathon build. It is 
 - **Related issue/PR:** Issue #6; PR #2.
 - **Secrets or personal data:** None included.
 
+## 2026-08-09 — KAVYA-06 submission integration harness
+
+- **Tool:** ChatGPT Work (Codex) with GitHub integration
+- **Human owner:** Kavya Jain
+- **Objective:** Audit all remaining work against the challenge and turn the frozen contracts into a repeatable backend/deployment release check.
+- **Interaction summary:** Re-read the editorial policy, frontend/backend handoff, repository status, challenge submission rules, and completed issues; separated mandatory runtime work from optional judge-score additions and out-of-scope distractions.
+- **Output used:** Added an explicit evaluator smoke CLI, contract and retention tests, a deadline-focused owner runbook, and corrected initialization semantics so test agents cannot overwrite or block the evaluator's later agent.
+- **Files influenced:** `scripts/evaluator-smoke.mjs`, its tests, root scripts, `README.md`, `AGENTS.md`, `docs/FRONTEND_BACKEND_HANDOFF.md`, and `docs/SUBMISSION_RUNBOOK.md`.
+- **Human constraints applied:** Kept frontend scope closed; preserved unauthenticated evaluator access; made initialization an explicit CLI action; excluded extra pages, real social publishing, analytics, and multi-agent architecture.
+- **Verification performed:** Strict TypeScript, all 24 unit/component/script tests, production build, whitespace validation, and the real CLI against a local HTTP fixture passed. GitHub CI is required after publish.
+- **Related issue/PR:** Issue #7; PR #2.
+- **Secrets or personal data:** None included.
+
 ## Entry template
 
 Copy this section for each material AI-assisted change:

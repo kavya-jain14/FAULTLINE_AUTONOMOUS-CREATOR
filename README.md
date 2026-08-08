@@ -59,6 +59,17 @@ Frontend/backend integration is frozen in
 That handoff also records the evaluator-safe authentication boundary and the
 server-side autonomous worker sequence.
 
+The owner-wise backend, integration, deployment, and deadline checklist is in
+[`docs/SUBMISSION_RUNBOOK.md`](docs/SUBMISSION_RUNBOOK.md).
+
+To verify a deployed existing agent without initializing another one:
+
+```bash
+npm run smoke:evaluator -- \
+  --base-url https://your-live-demo.example \
+  --agent-id <agent-id>
+```
+
 ## Verification
 
 ```bash
