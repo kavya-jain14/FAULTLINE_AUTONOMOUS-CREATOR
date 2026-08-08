@@ -10,13 +10,6 @@ interface InitializePanelProps {
   onConnect: (agentId: string) => void;
 }
 
-const operatingSteps = [
-  ["01", "Discover", "Reads live technical sources on a schedule."],
-  ["02", "Judge", "Rejects weak, repeated, or unsupported signals."],
-  ["03", "Remember", "Checks prior coverage before writing."],
-  ["04", "Publish", "Appends only qualified posts over time."],
-] as const;
-
 export function InitializePanel({
   isInitializing,
   error,
@@ -74,19 +67,67 @@ export function InitializePanel({
         </div>
       </section>
 
-      <aside className="operating-card" aria-label="Autonomous operating loop">
-        <div className="card-kicker">Operating loop</div>
-        <ol className="operating-list">
-          {operatingSteps.map(([number, title, copy]) => (
-            <li key={number}>
-              <span>{number}</span>
-              <div>
-                <strong>{title}</strong>
-                <p>{copy}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+      <aside className="operating-card" aria-label="Mira editorial decision system">
+        <header className="decision-header">
+          <div>
+            <div className="card-kicker">Mira’s editorial gate</div>
+            <h2>Judgment before generation.</h2>
+          </div>
+          <div className="gate-score" aria-label="Publish threshold 72 out of 100">
+            <strong>72</strong>
+            <span>publish bar</span>
+          </div>
+        </header>
+
+        <div className="discovery-rail">
+          <span>01 · Discover</span>
+          <p>Primary technical sources enter as untrusted evidence.</p>
+        </div>
+
+        <section className="judgment-gate" aria-labelledby="judgment-title">
+          <div className="gate-label">
+            <span>02</span>
+            <h3 id="judgment-title">Decision evidence</h3>
+          </div>
+          <dl className="decision-factors">
+            <div>
+              <dt>Evidence quality</dt>
+              <dd>Required</dd>
+            </div>
+            <div>
+              <dt>Builder consequence</dt>
+              <dd>Material</dd>
+            </div>
+            <div>
+              <dt>Novel vs memory</dt>
+              <dd>Distinct</dd>
+            </div>
+          </dl>
+          <div className="reject-row">
+            <strong>Hard reject</strong>
+            <span>Unsupported</span>
+            <span>Repeated</span>
+            <span>No consequence</span>
+          </div>
+        </section>
+
+        <div className="after-gate">
+          <article>
+            <span>03</span>
+            <div>
+              <strong>Remember</strong>
+              <p>Check durable coverage before writing.</p>
+            </div>
+          </article>
+          <article>
+            <span>04</span>
+            <div>
+              <strong>Publish</strong>
+              <p>Append only qualified field notes.</p>
+            </div>
+          </article>
+        </div>
+
         <div className="existing-agent">
           <label htmlFor="existing-agent-id">
             <Link2 /> Already initialized?

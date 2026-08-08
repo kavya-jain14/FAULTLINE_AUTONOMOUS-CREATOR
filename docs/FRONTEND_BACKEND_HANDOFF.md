@@ -13,6 +13,37 @@ room so Fuzail can implement the runtime without guessing UI behavior.
 - All timestamps are ISO 8601 UTC values ending in `Z`.
 - Response payloads are validated strictly; undocumented fields fail parsing.
 
+## Evaluator access and authentication
+
+The challenge endpoints must remain machine-accessible without an interactive
+login, cookie, or browser session. Do not place `POST /api/agent/init` or
+`GET /api/agent/feed` behind the demo's authentication UI. The evaluator calls
+the initialization endpoint exactly once and then polls the feed directly.
+
+Treat `agentId` as an opaque lookup token, not as user authentication. Apply
+rate limits, input validation, narrow CORS rules, and deployment-level abuse
+protection without changing the required request or response bodies. If an
+operator console is added later, protect a separate `/admin` surface and keep
+the evaluator contract independent from it.
+
+## Autonomous worker sequence
+
+1. `POST /init` commits the agent, persona, memory namespace, and next run time.
+2. A server-side scheduler enqueues the first run; no open browser is required.
+3. The worker reads live sources and stores normalized candidate fingerprints.
+4. Hard gates reject unsupported, repeated, stale, or consequence-free topics.
+5. Remaining candidates receive the deterministic editorial score; only scores
+   at or above 72 continue.
+6. Memory checks source identity, topic similarity, and prior published claims.
+7. The writer produces Mira's `Signal → Fault line → Builder move` structure,
+   rationale, and source list.
+8. The worker appends the post and decision/run evidence in one durable unit.
+9. Subsequent scheduled runs repeat with jitter; neither GET endpoint triggers
+   any step in this sequence.
+
+Use a durable database and a real scheduler/queue. Browser timers and work
+started as a side effect of `GET /feed` do not satisfy autonomous operation.
+
 ## 1. Initialize the agent
 
 ```http
@@ -147,6 +178,10 @@ every 30 seconds and tolerates telemetry failure independently from feed failure
 - [ ] Implement all three endpoints against the exported Zod schemas.
 - [ ] Keep `GET /feed` side-effect free under repeated polling.
 - [ ] Generate the first worker schedule during initialization.
+- [ ] Keep evaluator endpoints free of interactive authentication redirects.
+- [ ] Run discovery from a durable server-side scheduler with retry and jitter.
+- [ ] Treat fetched source content as untrusted data and ignore embedded prompts.
+- [ ] Apply hard gates, the 72-point threshold, and memory checks before writing.
 - [ ] Persist rejected decisions and no-publication runs, not only posts.
 - [ ] Make counters derive from durable records rather than process memory.
 - [ ] Return UTC timestamps ending in `Z`.

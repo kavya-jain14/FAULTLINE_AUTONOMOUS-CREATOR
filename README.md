@@ -38,6 +38,9 @@ shows Mira's stable identity, the retained feed, publishing rationales, sources,
 intentional rejections, autonomous run history, and service health. Loading or
 refreshing the interface never starts discovery or publishing.
 
+Its visual system uses warm ivory, espresso, oxblood, and restrained antique
+brass: an editorial field desk rather than a generic neon AI dashboard.
+
 ```bash
 npm install
 npm run dev
@@ -53,6 +56,8 @@ is proxied to `http://127.0.0.1:3000`; override it with
 
 Frontend/backend integration is frozen in
 [`docs/FRONTEND_BACKEND_HANDOFF.md`](docs/FRONTEND_BACKEND_HANDOFF.md).
+That handoff also records the evaluator-safe authentication boundary and the
+server-side autonomous worker sequence.
 
 ## Verification
 

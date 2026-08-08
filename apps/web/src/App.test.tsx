@@ -106,6 +106,8 @@ describe("FAULTLINE control room", () => {
 
     expect(screen.getByText("The signal is noisy.")).toBeInTheDocument();
     expect(screen.getByText("Mira")).toBeInTheDocument();
+    expect(screen.getByText("Judgment before generation.")).toBeInTheDocument();
+    expect(screen.getByLabelText("Publish threshold 72 out of 100")).toBeVisible();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
