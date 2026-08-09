@@ -29,5 +29,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify contracts, agent core, and web
+      - name: Verify contracts, autonomous runtime, and web
         run: npm run verify

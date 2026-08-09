@@ -6,6 +6,9 @@
     },
     {
       "path": "./packages/agent-core"
+    },
+    {
+      "path": "./apps/api"
     }
   ]
 }

@@ -14,6 +14,8 @@
     "build": "tsc -b && npm run build --workspace @faultline/web",
     "dev": "npm run dev --workspace @faultline/web",
     "predev": "tsc -b --pretty false",
+    "start:api": "npm run start --workspace @faultline/api",
+    "start:worker": "npm run start:worker --workspace @faultline/api",
     "smoke:evaluator": "tsc -b --pretty false && node scripts/evaluator-smoke.mjs",
     "typecheck": "tsc -b --pretty false && npm run typecheck --workspace @faultline/web",
     "test": "vitest run",
