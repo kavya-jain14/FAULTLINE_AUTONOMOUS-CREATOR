@@ -13,8 +13,12 @@ import {
   countRejected,
   createAgent,
   getAgent,
+  getDecisions,
   getPosts,
+  getRuns,
+  getSourceHealth,
 } from "./db.js";
+import { getRuntimeConfig, scheduleAt } from "./config.js";
 
 function sendJson(
   response: ServerResponse,
@@ -55,12 +59,28 @@ function createAgentId(personaName: string): string {
   return `faultline-${slug || "agent"}-${randomUUID().slice(0, 6)}`;
 }
 
-function buildControlRoom(agentId: string) {
+export function buildControlRoom(agentId: string) {
   const agent = getAgent(agentId);
 
   if (!agent) {
     return null;
   }
+
+  const checkedAt = now();
+  const runtime = getRuntimeConfig();
+  const heartbeatAge = agent.workerHeartbeatAt
+    ? Date.now() - Date.parse(agent.workerHeartbeatAt)
+    : Number.POSITIVE_INFINITY;
+  const workerHealthy = heartbeatAge <= Math.max(60_000, runtime.pollMs * 5);
+  const sourceHealth = getSourceHealth();
+  const sourceState =
+    sourceHealth.length === 0
+      ? "unknown"
+      : sourceHealth.every((item) => item.state === "healthy")
+        ? "healthy"
+        : sourceHealth.some((item) => item.state === "healthy")
+          ? "degraded"
+          : "offline";
 
   return ControlRoomSnapshotSchema.parse({
     agentId,
@@ -74,9 +94,28 @@ function buildControlRoom(agentId: string) {
       workerState: agent.workerState,
     },
 
-    editorialLedger: [],
+    editorialLedger: getDecisions(agentId).map((decision) => ({
+      id: decision.id,
+      title: decision.title,
+      finalScore: decision.finalScore,
+      reason: decision.reason,
+      sourceUrl: decision.sourceUrl,
+      decidedAt: decision.decidedAt,
+    })),
 
-    runs: [],
+    runs: getRuns(agentId).map((run) => ({
+      id: run.id,
+      startedAt: run.startedAt,
+      completedAt: run.completedAt,
+      status: run.status === "completed" || run.status === "running" ||
+        run.status === "partial" || run.status === "failed"
+        ? run.status
+        : "partial",
+      discovered: run.discovered,
+      rejected: run.rejected,
+      published: run.published,
+      summary: run.summary,
+    })),
 
     health: [
       {
@@ -84,28 +123,42 @@ function buildControlRoom(agentId: string) {
         label: "API",
         state: "healthy",
         detail: "API process is responding.",
-        checkedAt: now(),
+        checkedAt,
       },
       {
         key: "worker",
         label: "Autonomous worker",
-        state: "unknown",
-        detail: "Autonomous worker has not started yet.",
-        checkedAt: now(),
+        state: workerHealthy
+          ? "healthy"
+          : agent.workerHeartbeatAt
+            ? "offline"
+            : "unknown",
+        detail: workerHealthy
+          ? `Durable scheduler heartbeat received at ${agent.workerHeartbeatAt}.`
+          : agent.workerHeartbeatAt
+            ? `Last scheduler heartbeat at ${agent.workerHeartbeatAt} is stale.`
+            : "Waiting for the first durable scheduler heartbeat.",
+        checkedAt,
       },
       {
         key: "database",
         label: "Database",
         state: "healthy",
         detail: "Durable SQLite database is available.",
-        checkedAt: now(),
+        checkedAt,
       },
       {
         key: "sources",
         label: "Primary sources",
-        state: "unknown",
-        detail: "Source adapters are not connected yet.",
-        checkedAt: now(),
+        state: sourceState,
+        detail:
+          sourceHealth.length === 0
+            ? "No source fetch has completed yet."
+            : sourceHealth
+                .map((item) => `${item.label}: ${item.state}`)
+                .join("; ")
+                .slice(0, 300),
+        checkedAt,
       },
     ],
   });
@@ -173,9 +226,11 @@ export async function handleRequest(
      * This only schedules a future run.
      * It does NOT execute discovery or publishing.
      */
-    const nextRunAt = new Date(
-      Date.now() + 60_000,
-    ).toISOString();
+    const nextRunAt = scheduleAt(
+      getRuntimeConfig().initialDelayMs,
+      0,
+      new Date(initializedAt),
+    );
 
     const agentId = createAgentId(
       parsed.data.persona.name,
@@ -278,52 +333,6 @@ export async function handleRequest(
     }
 
     sendJson(response, 200, snapshot);
-
-    return;
-  }
-    /*
-   * POST /api/agent/run
-   *
-   * Triggers one autonomous discovery/editorial/publishing run.
-   */
-  if (
-    request.method === "POST" &&
-    url.pathname === "/api/agent/run"
-  ) {
-    const agentId = url.searchParams.get("agentId");
-
-    if (!agentId) {
-      sendJson(response, 400, {
-        message: "agentId is required.",
-      });
-
-      return;
-    }
-
-    if (!getAgent(agentId)) {
-      sendJson(response, 404, {
-        message: "Agent not found.",
-      });
-
-      return;
-    }
-
-    try {
-      const { runAgentOnce } =
-        await import("./worker.js");
-
-      const result =
-        await runAgentOnce(agentId);
-
-      sendJson(response, 200, result);
-    } catch (error) {
-      sendJson(response, 500, {
-        message:
-          error instanceof Error
-            ? error.message
-            : String(error),
-      });
-    }
 
     return;
   }

@@ -21,6 +21,18 @@ interface NvdResponse {
   vulnerabilities?: NvdVulnerability[];
 }
 
+function utcTimestamp(value: string | undefined): string {
+  if (!value) {
+    return new Date().toISOString();
+  }
+
+  const zoned = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(value) ? value : `${value}Z`;
+  const parsed = Date.parse(zoned);
+  return Number.isFinite(parsed)
+    ? new Date(parsed).toISOString()
+    : new Date().toISOString();
+}
+
 export class NvdAdapter implements SourceAdapter {
   readonly kind = "nvd" as const;
 
@@ -33,8 +45,15 @@ export class NvdAdapter implements SourceAdapter {
   async fetchCandidates(
     signal?: AbortSignal,
   ): Promise<SourceCandidate[]> {
+    const end = new Date();
+    const start = new Date(end.getTime() - 7 * 24 * 60 * 60_000);
+    const query = new URLSearchParams({
+      resultsPerPage: "20",
+      lastModStartDate: start.toISOString(),
+      lastModEndDate: end.toISOString(),
+    });
     const response = await fetch(
-      `${this.endpoint}?resultsPerPage=25`,
+      `${this.endpoint}?${query.toString()}`,
       {
         signal,
         headers: {
@@ -54,8 +73,13 @@ export class NvdAdapter implements SourceAdapter {
     const data =
       (await response.json()) as NvdResponse;
 
-    const vulnerabilities =
-      data.vulnerabilities ?? [];
+    const vulnerabilities = [...(data.vulnerabilities ?? [])]
+      .sort((left, right) =>
+        String(right.cve?.lastModified ?? right.cve?.published ?? "").localeCompare(
+          String(left.cve?.lastModified ?? left.cve?.published ?? ""),
+        ),
+      )
+      .slice(0, 12);
 
     return vulnerabilities
       .filter((item) => item.cve?.id)
@@ -72,13 +96,10 @@ export class NvdAdapter implements SourceAdapter {
         return {
           sourceId: cve.id!,
           sourceKind: "nvd" as const,
-          title: cve.id!,
+          title: `${cve.id!} — ${description.slice(0, 110)}`,
           summary: description,
           url: `https://nvd.nist.gov/vuln/detail/${cve.id}`,
-          publishedAt:
-            cve.published ??
-            cve.lastModified ??
-            new Date().toISOString(),
+          publishedAt: utcTimestamp(cve.lastModified ?? cve.published),
           sourceName: this.name,
           tags: [
             "cybersecurity",

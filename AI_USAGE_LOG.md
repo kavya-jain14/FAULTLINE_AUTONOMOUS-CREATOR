@@ -101,6 +101,20 @@ This log records material AI assistance used during the Vicodathon build. It is 
 - **Related issue/PR:** Issue #7; PR #2.
 - **Secrets or personal data:** None included.
 
+## 2026-08-09 — PR #9 autonomous runtime release hardening
+
+- **Tool:** ChatGPT Work (Codex) with GitHub integration
+- **Human owner:** Kavya Jain; integration review of Fuzail Ahmad's PR #9
+- **Objective:** Reproduce and resolve evaluator-blocking runtime defects before the Vicodathon deadline.
+- **Interaction summary:** Reviewed PR #9 against the frozen contracts and challenge rules; reproduced missing autonomous scheduling, non-durable memory, duplicate publication, invalid post structure, static telemetry, incorrect rejection counts, committed runtime databases, and unexecuted backend smoke files.
+- **Output used:** Added a durable scheduler with database leases, retry/timeouts/jitter, paced one-post cycles, SQLite-backed exact and similarity memory, the frozen 72/100 editorial policy, persona-aware structured writing, three-part public rationale, parsed live CERT-In/NVD/GitHub advisory sources, truthful run/decision/source telemetry, same-origin production serving, container deployment files, and executable backend tests.
+- **Files influenced:** `apps/api`, root runtime scripts, `.gitignore`, `Dockerfile`, `railway.json`, README, handoff/runbook documents, and this log.
+- **Human constraints applied:** Kept evaluator endpoints unauthenticated and read-only where required; removed the manual run endpoint; did not add multi-agent orchestration, social publishing, analytics, or additional frontend pages.
+- **Verification performed:** Node 24 strict typecheck; 29/29 tests; three live primary sources returning 30 normalized candidates; automatic first publication without feed-triggered work; evaluator smoke with a non-empty feed; process restart; a second autonomous zero-publication cycle blocking 30 duplicates; byte-stable post retention; truthful healthy telemetry.
+- **Related branch/PR:** `kavya/pr9-release-hardening`, hardening on top of PR #9.
+- **Rejected or changed AI suggestions:** Replaced the consistently failing CISA feed (`403`) with GitHub's reviewed Security Advisories API instead of reporting false health; kept deterministic grounded writing as the safe fallback rather than requiring an unavailable runtime model key.
+- **Secrets or personal data:** None included.
+
 ## Entry template
 
 Copy this section for each material AI-assisted change:

@@ -177,15 +177,15 @@ every 30 seconds and tolerates telemetry failure independently from feed failure
 
 ## Integration checklist for Fuzail
 
-- [ ] Implement all three endpoints against the exported Zod schemas.
-- [ ] Keep `GET /feed` side-effect free under repeated polling.
-- [ ] Generate the first worker schedule during initialization.
-- [ ] Keep evaluator endpoints free of interactive authentication redirects.
-- [ ] Run discovery from a durable server-side scheduler with retry and jitter.
-- [ ] Treat fetched source content as untrusted data and ignore embedded prompts.
-- [ ] Apply hard gates, the 72-point threshold, and memory checks before writing.
-- [ ] Persist rejected decisions and no-publication runs, not only posts.
-- [ ] Make counters derive from durable records rather than process memory.
-- [ ] Return UTC timestamps ending in `Z`.
-- [ ] Verify a previously returned post remains after worker restarts.
-- [ ] Verify the control-room endpoint can fail without breaking the feed endpoint.
+- [x] Implement all three endpoints against the exported Zod schemas.
+- [x] Keep `GET /feed` side-effect free under repeated polling.
+- [x] Generate the first worker schedule during initialization.
+- [x] Keep evaluator endpoints free of interactive authentication redirects.
+- [x] Run discovery from a durable server-side scheduler with retry and jitter.
+- [x] Treat fetched source content as untrusted data and ignore embedded prompts.
+- [x] Apply hard gates, the 72-point threshold, and memory checks before writing.
+- [x] Persist rejected decisions and no-publication runs, not only posts.
+- [x] Make counters derive from durable records rather than process memory.
+- [x] Return UTC timestamps ending in `Z`.
+- [x] Verify a previously returned post remains after worker restarts.
+- [x] Verify the control-room endpoint can fail without breaking the feed endpoint.
