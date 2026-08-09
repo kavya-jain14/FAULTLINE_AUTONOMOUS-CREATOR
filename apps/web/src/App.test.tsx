@@ -99,13 +99,17 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("FAULTLINE control room", () => {
+describe("MIRA control room", () => {
   it("does not call the API before deliberate initialization", () => {
     const fetchMock = installConnectedApi();
     render(<App />);
 
     expect(screen.getByText("The signal is noisy.")).toBeInTheDocument();
-    expect(screen.getByText("Mira")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "MIRA home" })).toBeVisible();
+    expect(screen.getAllByText("MIRA").length).toBeGreaterThanOrEqual(2);
+    expect(
+      screen.getByText(/Machine Intelligence for Reliability & Assurance/i),
+    ).toBeVisible();
     expect(
       screen.getByText("Mira publishes only when the signal earns it."),
     ).toBeInTheDocument();
@@ -123,6 +127,10 @@ describe("FAULTLINE control room", () => {
     expect(
       await screen.findByText("A feed shaped by decisions, not volume."),
     ).toBeVisible();
+    expect(
+      screen.getByText(/Machine Intelligence for Reliability & Assurance/i),
+    ).toBeVisible();
+    expect(screen.getByText(/open Topics skipped to audit/i)).toBeVisible();
     expect(screen.getByText("live evidence")).toBeVisible();
     expect(screen.getByText("the claim")).toBeVisible();
     expect(screen.getByText("prior coverage")).toBeVisible();

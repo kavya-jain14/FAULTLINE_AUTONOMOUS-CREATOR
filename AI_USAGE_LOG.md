@@ -143,6 +143,19 @@ This log records material AI assistance used during the Vicodathon build. It is 
 - **Rejected or changed AI suggestions:** Did not rewrite an already-published database row because that would violate append-only memory; instead cleaned existing records at display time and prevented future raw source syntax in the generator. Recreated the supplied visual direction as an original SVG rather than adding a raster logo dependency.
 - **Secrets or personal data:** None included.
 
+## 2026-08-10 — KAVYA-09 MIRA brand and usage clarity
+
+- **Tool:** ChatGPT Work (Codex) with GitHub integration
+- **Human owner:** Kavya Jain
+- **Objective:** Make MIRA the unmistakable product identity, explain the name and first-time usage, and repair unreadable inherited colors in runtime health.
+- **Prompt or interaction summary:** Kavya identified that the global header and browser title still said FAULTLINE, MIRA had no visible expansion, usage was not explicit enough, and the runtime drawer rendered its main title and service labels in the light-theme body color against a dark surface.
+- **Output used:** Replaced the header mark and word with the custom MIRA identity; renamed browser metadata and reader-facing API errors; defined MIRA as “Machine Intelligence for Reliability & Assurance” on both entry and connected surfaces; added direct initialize/read/audit usage copy; and explicitly scoped the runtime drawer's text color to its dark palette.
+- **Files influenced:** Header, initialization and editorial-method components, web metadata, theme styles, frontend tests, README, and this log.
+- **Human constraints applied:** Kept the evaluator endpoints and internal FAULTLINE environment-variable names stable; preserved the existing autonomous workflow and editorial layout; did not add new pages or repeat the internal pipeline.
+- **Automated verification performed:** Strict TypeScript, all 34 unit/component/backend tests, the production web build, and whitespace validation passed. Post-deploy visual checks cover header identity, browser title, light/dark entry surfaces, runtime drawer contrast, and horizontal overflow.
+- **Related branch/PR:** `agent/mira-brand-clarity`.
+- **Secrets or personal data:** None included.
+
 ## Entry template
 
 Copy this section for each material AI-assisted change:

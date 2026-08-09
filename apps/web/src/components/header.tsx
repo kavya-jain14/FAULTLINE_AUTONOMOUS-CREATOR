@@ -1,6 +1,6 @@
 import { CircleHelp, Moon, RefreshCw, Sun, Unplug } from "lucide-react";
 
-import { BrandMark } from "./brand-mark";
+import { MiraMark } from "./mira-mark";
 
 interface HeaderProps {
   connected: boolean;
@@ -23,10 +23,10 @@ export function Header({
 }: HeaderProps): React.JSX.Element {
   return (
     <header className="site-header">
-      <a className="brand" href="#top" aria-label="FAULTLINE home">
-        <BrandMark />
-        <span className="brand-word">FAULTLINE</span>
-        <span className="brand-edition">Field note 01</span>
+      <a className="brand" href="#top" aria-label="MIRA home">
+        <MiraMark />
+        <span className="brand-word">MIRA</span>
+        <span className="brand-edition">Reliability desk</span>
       </a>
 
       <div className="header-actions">

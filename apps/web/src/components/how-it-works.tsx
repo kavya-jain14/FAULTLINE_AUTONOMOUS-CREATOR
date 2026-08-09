@@ -23,8 +23,9 @@ export function HowItWorks(): React.JSX.Element {
         <span className="panel-kicker">The editorial method</span>
         <h2 id="product-guide-title">A feed shaped by decisions, not volume.</h2>
         <p>
-          Mira runs independently after setup. The useful part is not the summary;
-          it is deciding when the evidence deserves a builder’s attention.
+          <strong>MIRA</strong> means Machine Intelligence for Reliability &amp;
+          Assurance. Initialize the editor once, read Published notes for sourced
+          action, and open Topics skipped to audit what it chose not to amplify.
         </p>
       </header>
 

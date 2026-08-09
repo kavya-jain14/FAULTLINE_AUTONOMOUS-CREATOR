@@ -31,14 +31,15 @@ export function InitializePanel({
           <em>Mira finds the fault line.</em>
         </h1>
         <p className="hero-copy">
-          Most feeds tell you what is new. Mira decides what is worth
-          interrupting a builder for—and remembers what she has already covered.
+          <strong>MIRA</strong> means Machine Intelligence for Reliability &amp;
+          Assurance. Initialize it once, then return to Published notes and Topics
+          skipped while the editor keeps working on schedule.
         </p>
 
         <div className="persona-proof">
           <div className="persona-heading">
             <span className="proof-label">Editor on record</span>
-            <strong>Mira</strong>
+            <strong>MIRA</strong>
           </div>
           <p>{MIRA_PERSONA.role}</p>
         </div>
