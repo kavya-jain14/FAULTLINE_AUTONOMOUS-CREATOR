@@ -1,13 +1,21 @@
 import { createServer } from "node:http";
 
 import { handleRequest } from "./app.js";
+import { startAutonomousScheduler } from "./scheduler.js";
+import { serveWebApp } from "./static.js";
 
 const host = process.env.HOST ?? "127.0.0.1";
 const port = Number(process.env.PORT ?? 3000);
 
 const server = createServer(
   (request, response) => {
-    void handleRequest(request, response).catch(
+    void serveWebApp(request, response).then((served) => {
+      if (!served) {
+        return handleRequest(request, response);
+      }
+
+      return undefined;
+    }).catch(
       (error: unknown) => {
         console.error(
           "Unhandled API error:",
@@ -35,8 +43,24 @@ const server = createServer(
   },
 );
 
+let scheduler: ReturnType<typeof startAutonomousScheduler> | null = null;
+
 server.listen(port, host, () => {
+  if (process.env.FAULTLINE_EMBEDDED_SCHEDULER !== "false") {
+    scheduler = startAutonomousScheduler();
+  }
+
   console.log(
     `FAULTLINE API running at http://${host}:${port}`,
   );
 });
+
+function shutdown(): void {
+  scheduler?.stop();
+  server.close(() => {
+    process.exitCode = 0;
+  });
+}
+
+process.once("SIGINT", shutdown);
+process.once("SIGTERM", shutdown);

@@ -19,7 +19,9 @@ POST /api/agent/init
 GET  /api/agent/feed?agentId=<agent-id>
 ```
 
-The feed endpoint is read-only. Autonomous publishing is performed by an independent worker after initialization.
+The feed endpoint is read-only. A durable server-side scheduler starts after
+the API process boots, claims due agents with a database lease, and publishes
+without feed traffic or an open browser.
 
 ## Core proof
 
@@ -42,14 +44,26 @@ Its visual system uses warm ivory, espresso, oxblood, and restrained antique
 brass: an editorial field desk rather than a generic neon AI dashboard.
 
 ```bash
-npm install
+npm ci
+npm run build
+npm run start:api
+```
+
+This production-shaped command serves the React control room and evaluator API
+from the same origin at `http://127.0.0.1:3000`. The embedded scheduler is on by
+default, so initialization is the only mutation needed to begin recurring work.
+
+For frontend-only development with Vite hot reload, keep the API command above
+running and use a second terminal:
+
+```bash
 npm run dev
 ```
 
 The root `predev` step compiles the internal contracts and agent-core workspace
 packages automatically, so this command works directly after a fresh clone.
 
-The web app runs at `http://127.0.0.1:4173`. During local development, `/api`
+The Vite app runs at `http://127.0.0.1:4173`. During local development, `/api`
 is proxied to `http://127.0.0.1:3000`; override it with
 `FAULTLINE_API_PROXY`. For a deployed cross-origin API, set
 `VITE_API_BASE_URL` before building.
@@ -61,6 +75,47 @@ server-side autonomous worker sequence.
 
 The owner-wise backend, integration, deployment, and deadline checklist is in
 [`docs/SUBMISSION_RUNBOOK.md`](docs/SUBMISSION_RUNBOOK.md).
+
+## Autonomous runtime
+
+- **Discovery:** GitHub reviewed Security Advisories, NVD updates, and parsed
+  CERT-In advisories are fetched live with bounded timeouts and retry.
+- **Judgment:** every candidate passes prompt-injection safety, domain gates,
+  a frozen 100-point rubric, and the 72-point publication threshold.
+- **Memory:** exact fingerprints and similarity evidence are stored per agent;
+  a unique database index prevents duplicate publication under concurrency.
+- **Pacing:** at most one strongest candidate is published per scheduled cycle;
+  qualified alternatives are explicitly deferred and recorded.
+- **Transparency:** every post uses `Signal → Fault line → Builder move` and
+  explains selection, present relevance, comparison, and primary sources.
+- **Observability:** runs, accepted/rejected decisions, source health, worker
+  heartbeat, schedule, and counters are returned by the read-only control room.
+
+Useful runtime settings:
+
+| Variable | Default | Purpose |
+| --- | ---: | --- |
+| `FAULTLINE_DB_PATH` | `apps/api/data/faultline.sqlite` | Durable SQLite file |
+| `FAULTLINE_INITIAL_DELAY_MS` | `8000` | Delay from init to first run |
+| `FAULTLINE_INTERVAL_MS` | `1800000` | Base recurring interval |
+| `FAULTLINE_SCHEDULE_JITTER_MS` | `120000` | Schedule jitter |
+| `FAULTLINE_SOURCE_TIMEOUT_MS` | `12000` | Per-attempt source timeout |
+| `FAULTLINE_SOURCE_RETRIES` | `1` | Retry count per source |
+| `FAULTLINE_EMBEDDED_SCHEDULER` | `true` | Set `false` only with a separate worker |
+
+`npm run start:worker` runs the same durable scheduler as a separate process.
+Database leases make embedded and separate workers safe against double runs.
+
+## Container deployment
+
+The included `Dockerfile` and `railway.json` deploy the UI, API, and embedded
+scheduler as one long-running service. Attach a persistent volume at `/data`;
+the container already sets `FAULTLINE_DB_PATH=/data/faultline.sqlite`. A volume
+is mandatory for the 48-hour evaluation because an ephemeral filesystem would
+discard agents, memory, and posts after a restart.
+
+Follow the exact release sequence in
+[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 To verify a deployed existing agent without initializing another one:
 
@@ -87,6 +142,7 @@ the production web build.
 
 ## Status
 
-Frontend control-room implementation is complete and backend integration is in
-progress. Kickoff: **7 August 2026, 8:00 PM IST**. Submission deadline:
+Frontend and autonomous runtime integration are complete and locally release
+verified; public deployment and submission verification remain. Kickoff:
+**7 August 2026, 8:00 PM IST**. Submission deadline:
 **9 August 2026, 8:00 PM IST**.

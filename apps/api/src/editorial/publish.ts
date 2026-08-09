@@ -2,66 +2,42 @@ import { randomUUID } from "node:crypto";
 
 import {
   createPost,
-  getAgent,
+  markMemoryPublished,
+  type AgentRecord,
 } from "../db.js";
-
-import {
-  generateMiraPost,
-} from "./generator.js";
-
-import {
-  judgeCandidate,
-} from "./judge.js";
-
-import type {
-  SourceCandidate,
-} from "../sources/types.js";
+import { generateEditorialPost, type SelectionContext } from "./generator.js";
+import type { ProcessedCandidate } from "./pipeline.js";
 
 export function publishCandidate(
-  agentId: string,
-  candidate: SourceCandidate,
+  agent: AgentRecord,
+  item: ProcessedCandidate,
+  selection: SelectionContext,
 ) {
-  const agent = getAgent(agentId);
-
-  if (!agent) {
-    throw new Error(
-      `Agent ${agentId} does not exist.`,
-    );
+  if (!item.editorialScore.accepted) {
+    return { published: false as const };
   }
 
-  const decision =
-    judgeCandidate(candidate);
+  const generated = generateEditorialPost(
+    agent,
+    item.candidate,
+    item.editorialScore,
+    selection,
+  );
+  const id = randomUUID();
+  const post = createPost({
+    id,
+    agentId: agent.agentId,
+    fingerprint: item.fingerprint,
+    createdAt: generated.generatedAt,
+    text: generated.text,
+    rationale: generated.rationale,
+    sources: generated.sourceUrls,
+  });
 
-  if (!decision.score.accepted) {
-    return {
-      published: false,
-      decision,
-    };
-  }
-
-  const generated =
-    generateMiraPost(
-      candidate,
-      decision.score,
-    );
-
-  const post =
-    createPost({
-      id: randomUUID(),
-      agentId,
-      createdAt:
-        generated.generatedAt,
-      text:
-        `${generated.headline}\n\n${generated.body}`,
-      rationale:
-        generated.rationale.join("\n"),
-      sources:
-        generated.sourceUrls,
-    });
+  markMemoryPublished(agent.agentId, item.fingerprint, id);
 
   return {
-    published: true,
-    decision,
+    published: true as const,
     post,
   };
 }

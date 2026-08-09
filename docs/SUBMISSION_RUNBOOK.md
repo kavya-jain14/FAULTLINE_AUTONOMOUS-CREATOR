@@ -10,8 +10,9 @@ This is the remaining-work source of truth for the Vicodathon deadline on
 | Product identity, Mira persona, editorial policy | Kavya | Complete |
 | Evaluator and control-room contracts | Kavya | Complete and frozen |
 | Responsive initialization and control-room frontend | Kavya | Complete |
-| API, persistence, discovery, worker, scheduler | Fuzail | Pending |
-| End-to-end integration and deployment | Joint | Pending |
+| API, persistence, discovery, worker, scheduler | Fuzail + Kavya hardening | Complete locally |
+| End-to-end integration | Joint | Complete locally |
+| Durable public deployment | Joint | Pending |
 | Public demo and submission verification | Joint | Pending |
 
 The frontend is feature-complete. Do not add more pages before the runtime and
@@ -53,16 +54,16 @@ Fuzail should branch from `kavya/persona-editorial-foundation` and implement:
 
 ## Joint release gate
 
-- [ ] Public repository is accessible in a logged-out browser.
+- [x] Public repository is accessible in a logged-out browser.
 - [ ] Live demo opens without Vercel/GitHub/Google authentication.
-- [ ] `POST /api/agent/init` returns a durable new `agentId`.
-- [ ] Repeated `GET /feed` calls are read-only and return newest-first posts.
-- [ ] Previously returned posts remain byte-for-byte stable.
-- [ ] At least two worker cycles complete without a browser or manual request.
-- [ ] A zero-publication run visibly stores intentional rejection evidence.
-- [ ] Worker restart preserves agents, posts, decisions, and schedule.
-- [ ] AI Usage Log corresponds to the actual commit history and features.
-- [ ] README contains setup, live URL, API contract, and verification command.
+- [x] `POST /api/agent/init` returns a durable new `agentId` locally.
+- [x] Repeated `GET /feed` calls are read-only and return newest-first posts.
+- [x] Previously returned posts remain byte-for-byte stable.
+- [x] At least two worker cycles complete without a browser or manual request.
+- [x] A zero-publication run visibly stores intentional rejection evidence.
+- [x] Worker restart preserves agents, posts, decisions, and schedule.
+- [x] AI Usage Log corresponds to the actual commit history and features.
+- [ ] README contains the final live URL; setup, API, and verification are complete.
 - [ ] Team is registered and the submission is sent before 8:00 PM IST.
 
 ## Evaluator smoke commands

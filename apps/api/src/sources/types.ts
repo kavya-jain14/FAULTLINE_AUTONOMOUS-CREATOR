@@ -1,7 +1,7 @@
 export type SourceKind =
-  | "cisa-kev"
   | "nvd"
-  | "cert-in";
+  | "cert-in"
+  | "github-advisory";
 
 export interface SourceCandidate {
   sourceId: string;
