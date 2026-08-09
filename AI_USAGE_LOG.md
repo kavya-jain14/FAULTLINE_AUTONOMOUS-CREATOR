@@ -156,6 +156,18 @@ This log records material AI assistance used during the Vicodathon build. It is 
 - **Related branch/PR:** `agent/mira-brand-clarity`.
 - **Secrets or personal data:** None included.
 
+## 2026-08-10 — KAVYA-10 browser-tab MIRA mark
+
+- **Tool:** ChatGPT Work (Codex) with GitHub integration
+- **Human owner:** Kavya Jain
+- **Objective:** Replace the browser's generic globe icon with the product's MIRA identity.
+- **Prompt or interaction summary:** Kavya clarified that the requested logo placement was the browser-tab favicon rather than only the in-page header.
+- **Output used:** Added a small-size custom MIRA SVG favicon with an ivory tile, espresso monogram, brass fault line, and oxblood accent; linked it explicitly from the web document head.
+- **Files influenced:** `apps/web/public/mira-mark.svg`, `apps/web/index.html`, and this log.
+- **Verification:** Production build must retain the SVG and the deployed document must advertise and serve it with an SVG content type.
+- **Related branch/PR:** `agent/mira-favicon`.
+- **Secrets or personal data:** None included.
+
 ## Entry template
 
 Copy this section for each material AI-assisted change:
