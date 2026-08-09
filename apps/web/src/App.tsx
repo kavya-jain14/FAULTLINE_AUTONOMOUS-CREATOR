@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { MIRA_PERSONA } from "@faultline/agent-core";
 
@@ -7,6 +7,7 @@ import { EditorialLedger } from "./components/editorial-ledger";
 import { FeedPanel } from "./components/feed-panel";
 import { Header } from "./components/header";
 import { HealthDrawer } from "./components/health-drawer";
+import { HowItWorks } from "./components/how-it-works";
 import { InitializePanel } from "./components/initialize-panel";
 import { Masthead } from "./components/masthead";
 import { RunTimeline } from "./components/run-timeline";
@@ -15,11 +16,27 @@ import { useAgentControlRoom } from "./hooks/use-agent-control-room";
 import { formatUtc } from "./lib/time";
 
 type DeskView = "feed" | "ledger";
+type Theme = "light" | "dark";
+
+const THEME_STORAGE_KEY = "faultline.theme";
+
+function readTheme(): Theme {
+  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+  if (stored === "light" || stored === "dark") return stored;
+  return "light";
+}
 
 export default function App(): React.JSX.Element {
   const controlRoom = useAgentControlRoom();
   const [deskView, setDeskView] = useState<DeskView>("feed");
   const [healthOpen, setHealthOpen] = useState(false);
+  const [theme, setTheme] = useState<Theme>(readTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
 
   const openHealth = useCallback(() => setHealthOpen(true), []);
   const closeHealth = useCallback(() => setHealthOpen(false), []);
@@ -52,10 +69,12 @@ export default function App(): React.JSX.Element {
       </a>
       <Header
         connected={controlRoom.agentId !== null}
+        theme={theme}
         isRefreshing={controlRoom.isRefreshing}
         onRefresh={() => void controlRoom.refresh()}
         onDisconnect={controlRoom.disconnect}
         onOpenHealth={openHealth}
+        onToggleTheme={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />
 
       {controlRoom.agentId === null ? (
@@ -72,6 +91,8 @@ export default function App(): React.JSX.Element {
             workerState={controlRoom.snapshot?.autonomy.workerState ?? null}
           />
 
+          <HowItWorks />
+
           <AutonomyStrip
             status={controlRoom.snapshot?.autonomy ?? null}
             postsFallback={controlRoom.posts.length}
@@ -86,10 +107,11 @@ export default function App(): React.JSX.Element {
 
           {degradedServices.length > 0 && controlRoom.telemetryError === null ? (
             <button className="degraded-notice" type="button" onClick={openHealth}>
-              <span>Operational warning</span>
-              {degradedServices.map((service) => service.label).join(", ")} reported
-              {degradedServices.length === 1 ? " a" : ""} degraded state
-              <strong>Inspect health ↗</strong>
+              <span>Monitoring continues</span>
+              {degradedServices.length === 1
+                ? `${degradedServices[0]?.label ?? "One source"} is temporarily limited. Mira is still running with the remaining live sources.`
+                : `${degradedServices.length} services are temporarily limited. Mira is still running with available evidence.`}
+              <strong>View details ↗</strong>
             </button>
           ) : null}
 
@@ -100,7 +122,7 @@ export default function App(): React.JSX.Element {
               aria-current={deskView === "feed" ? "page" : undefined}
               onClick={() => setDeskView("feed")}
             >
-              Published feed
+              Published notes
               <span>{controlRoom.posts.length}</span>
             </button>
             <button
@@ -109,7 +131,7 @@ export default function App(): React.JSX.Element {
               aria-current={deskView === "ledger" ? "page" : undefined}
               onClick={() => setDeskView("ledger")}
             >
-              Rejection ledger
+              Topics skipped
               <span>{controlRoom.snapshot?.editorialLedger.length ?? 0}</span>
             </button>
           </nav>

@@ -10,6 +10,13 @@ const statusIcon = {
   failed: X,
 } as const;
 
+const statusLabel = {
+  completed: "Completed",
+  running: "In progress",
+  partial: "Completed with limits",
+  failed: "Needs attention",
+} as const;
+
 interface RunTimelineProps {
   runs: RunTimelineItem[];
   unavailable: boolean;
@@ -25,8 +32,8 @@ export function RunTimeline({
     <section className="panel timeline-panel" aria-labelledby="timeline-title">
       <header className="panel-header compact-header">
         <div>
-          <span className="panel-kicker">Proof of continuity</span>
-          <h2 id="timeline-title">Autonomous runs</h2>
+          <span className="panel-kicker">What Mira did over time</span>
+          <h2 id="timeline-title">Independent scans</h2>
         </div>
         <Activity />
       </header>
@@ -50,7 +57,7 @@ export function RunTimeline({
                 </div>
                 <div className="timeline-content">
                   <div className="timeline-title-row">
-                    <strong>{run.status}</strong>
+                    <strong>{statusLabel[run.status]}</strong>
                     <time dateTime={run.startedAt}>
                       {formatCompactUtc(run.startedAt)}
                     </time>

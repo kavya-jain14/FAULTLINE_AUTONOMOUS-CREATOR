@@ -1,21 +1,25 @@
-import { CircleHelp, RefreshCw, Unplug } from "lucide-react";
+import { CircleHelp, Moon, RefreshCw, Sun, Unplug } from "lucide-react";
 
 import { BrandMark } from "./brand-mark";
 
 interface HeaderProps {
   connected: boolean;
+  theme: "light" | "dark";
   isRefreshing: boolean;
   onRefresh: () => void;
   onDisconnect: () => void;
   onOpenHealth: () => void;
+  onToggleTheme: () => void;
 }
 
 export function Header({
   connected,
+  theme,
   isRefreshing,
   onRefresh,
   onDisconnect,
   onOpenHealth,
+  onToggleTheme,
 }: HeaderProps): React.JSX.Element {
   return (
     <header className="site-header">
@@ -27,10 +31,20 @@ export function Header({
 
       <div className="header-actions">
         <span className="utc-label">All times UTC</span>
+        <button
+          className="text-button theme-toggle"
+          type="button"
+          onClick={onToggleTheme}
+          aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+          title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+        >
+          {theme === "light" ? <Moon /> : <Sun />}
+          <span>{theme === "light" ? "Dark" : "Light"}</span>
+        </button>
         {connected ? (
           <>
             <button
-              className="icon-button"
+              className="icon-button header-refresh"
               type="button"
               onClick={onRefresh}
               aria-label="Refresh feed and telemetry"
@@ -39,7 +53,7 @@ export function Header({
               <RefreshCw className={isRefreshing ? "is-spinning" : ""} />
             </button>
             <button
-              className="icon-button"
+              className="icon-button header-health"
               type="button"
               onClick={onOpenHealth}
               aria-label="Open architecture and health"

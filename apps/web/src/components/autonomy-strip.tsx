@@ -15,27 +15,27 @@ export function AutonomyStrip({
 }: AutonomyStripProps): React.JSX.Element {
   const metrics = [
     {
-      label: "Initialized",
+      label: "Started",
       value: status ? formatUtc(status.initializedAt) : "Awaiting telemetry",
       numeric: false,
     },
     {
-      label: "Last autonomous run",
+      label: "Last scan",
       value: status ? formatUtc(status.lastRunAt) : "—",
       numeric: false,
     },
     {
-      label: "Next run",
+      label: "Next scan",
       value: status ? timeUntil(status.nextRunAt) : "—",
       numeric: false,
     },
     {
-      label: "Published",
+      label: "Notes",
       value: String(status?.postsPublished ?? postsFallback),
       numeric: true,
     },
     {
-      label: "Rejected",
+      label: "Skipped",
       value: status ? String(status.candidatesRejected) : "—",
       numeric: true,
     },
@@ -45,7 +45,7 @@ export function AutonomyStrip({
     <section className={`autonomy-strip ${loading ? "is-loading" : ""}`} aria-label="Autonomy status">
       <div className="strip-heading">
         <span className="live-pulse" />
-        Autonomous state
+        Mira is running independently
       </div>
       {metrics.map((metric) => (
         <div className="autonomy-metric" key={metric.label}>

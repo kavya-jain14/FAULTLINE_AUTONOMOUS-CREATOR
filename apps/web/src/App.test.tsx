@@ -75,7 +75,7 @@ function installConnectedApi(): ReturnType<typeof vi.fn> {
           {
             id: "newer",
             createdAt: "2026-08-08T12:20:00Z",
-            text: "Newest reliability note",
+            text: "Signal — Newest reliability note\n\nFault line — Builder risk increased.\n\nBuilder move — Patch the exposed path now.",
             rationale: "Selected because a primary source changed builder risk now.",
             sources: ["https://research.example.com/newer"],
           },
@@ -110,7 +110,25 @@ describe("FAULTLINE control room", () => {
       screen.getByText("Mira publishes only when the signal earns it."),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Publish threshold 72 out of 100")).toBeVisible();
+    expect(screen.getByRole("button", { name: /switch to dark mode/i })).toBeVisible();
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("explains autonomous behavior and remembers the chosen theme", async () => {
+    const user = userEvent.setup();
+    installConnectedApi();
+    window.localStorage.setItem("faultline.connectedAgentId", "agent-mira");
+    render(<App />);
+
+    expect(await screen.findByText("Find live signals")).toBeVisible();
+    expect(screen.getByText("Judge before writing")).toBeVisible();
+    expect(screen.getByText("Remember and publish")).toBeVisible();
+    expect(screen.getByText(/keeps working in the background/i)).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: /switch to dark mode/i }));
+    expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+    expect(window.localStorage.getItem("faultline.theme")).toBe("dark");
+    expect(screen.getByRole("button", { name: /switch to light mode/i })).toBeVisible();
   });
 
   it("initializes once, polls both read endpoints, and renders newest first", async () => {
@@ -127,6 +145,9 @@ describe("FAULTLINE control room", () => {
     expect(initCall?.[1]).toMatchObject({ method: "POST" });
 
     await screen.findByText("Newest reliability note");
+    expect(screen.getByText("What happened")).toBeVisible();
+    expect(screen.getByText("Why it matters")).toBeVisible();
+    expect(screen.getByText("What builders should do")).toBeVisible();
     const cards = document.querySelectorAll(".feed-card");
     expect(cards).toHaveLength(2);
     expect(within(cards[0] as HTMLElement).getByText("Newest reliability note")).toBeVisible();
@@ -146,7 +167,7 @@ describe("FAULTLINE control room", () => {
     render(<App />);
 
     await screen.findByText("Newest reliability note");
-    await user.click(screen.getByRole("button", { name: /rejection ledger/i }));
+    await user.click(screen.getByRole("button", { name: /topics skipped/i }));
 
     expect(screen.getByText("Benchmark claim without reproducible evidence")).toBeVisible();
     expect(screen.getByLabelText("Rejected")).toBeVisible();

@@ -6,7 +6,7 @@ const workerLabels: Record<WorkerState, string> = {
   discovering: "Discovering",
   judging: "Evaluating",
   publishing: "Publishing",
-  degraded: "Degraded",
+  degraded: "Limited sources",
 };
 
 interface MastheadProps {
@@ -41,7 +41,7 @@ export function Masthead({
       <div className="agent-identity">
         <span>Agent identity</span>
         <code title={agentId}>{agentId}</code>
-        <small>Persistent · prompt-free after init</small>
+        <small>Runs independently after setup</small>
       </div>
     </section>
   );
