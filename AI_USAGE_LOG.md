@@ -115,6 +115,20 @@ This log records material AI assistance used during the Vicodathon build. It is 
 - **Rejected or changed AI suggestions:** Replaced the consistently failing CISA feed (`403`) with GitHub's reviewed Security Advisories API instead of reporting false health; kept deterministic grounded writing as the safe fallback rather than requiring an unavailable runtime model key.
 - **Secrets or personal data:** None included.
 
+## 2026-08-09 — KAVYA-07 final product clarity and theme pass
+
+- **Tool:** ChatGPT Work (Codex) with GitHub integration
+- **Human owner:** Kavya Jain
+- **Objective:** Make the deployed control room understandable to a first-time visitor while preserving the evaluator-facing autonomy evidence.
+- **Interaction summary:** Kavya reviewed the production dashboard screenshots and requested clearer product onboarding, a visible light/dark option, stronger palette visibility, friendlier status language, better post readability, and a final responsive UX pass.
+- **Output used:** Added a persistent three-step “How FAULTLINE works” explainer; a remembered light/dark theme switch on both entry and connected views; plain-language autonomy, scan, skipped-topic, and degraded-source labels; and structured post rendering for “What happened”, “Why it matters”, and “What builders should do”.
+- **Files influenced:** `apps/web/src/App.tsx`, frontend components and styles, frontend tests, and this log.
+- **Human constraints applied:** Preserved the warm ivory/oxblood/brass editorial identity in light mode; made dark mode espresso-led instead of generic AI blue/purple; kept raw architecture and health evidence accessible without making it the first explanation a visitor sees.
+- **Automated verification performed:** Strict TypeScript, 30/30 tests, production build, and whitespace validation passed; coverage includes theme persistence, onboarding language, autonomous polling, structured post rendering, and degraded telemetry behavior.
+- **Related branch/PR:** `agent/final-ui-ux`; final PR pending publication.
+- **Rejected or changed AI suggestions:** Kept a single dashboard instead of adding marketing or authentication pages; kept published rationale visible instead of hiding proof behind a modal.
+- **Secrets or personal data:** None included.
+
 ## Entry template
 
 Copy this section for each material AI-assisted change:

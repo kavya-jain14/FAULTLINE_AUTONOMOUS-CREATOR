@@ -11,6 +11,8 @@ interface FeedPanelProps {
 }
 
 function FeedCard({ post, index }: { post: FeedPost; index: number }): React.JSX.Element {
+  const sections = parsePost(post.text);
+
   return (
     <article className="feed-card">
       <header className="feed-card-header">
@@ -21,7 +23,18 @@ function FeedCard({ post, index }: { post: FeedPost; index: number }): React.JSX
         </div>
       </header>
 
-      <div className="post-text">{post.text}</div>
+      {sections === null ? (
+        <div className="post-text">{cleanEditorialText(post.text)}</div>
+      ) : (
+        <div className="post-sections">
+          {sections.map((section) => (
+            <section className={`post-section post-section-${section.key}`} key={section.key}>
+              <span>{section.label}</span>
+              <p>{section.copy}</p>
+            </section>
+          ))}
+        </div>
+      )}
 
       <section className="rationale-block" aria-label="Publishing rationale">
         <div className="rationale-label">
@@ -45,6 +58,43 @@ function FeedCard({ post, index }: { post: FeedPost; index: number }): React.JSX
   );
 }
 
+function cleanEditorialText(text: string): string {
+  return text
+    .replace(/```[a-z]*|```/gi, "")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function parsePost(text: string): Array<{
+  key: "signal" | "fault-line" | "builder-move";
+  label: string;
+  copy: string;
+}> | null {
+  const cleaned = cleanEditorialText(text);
+  const pattern = /(?:^|\n)\s*(Signal|Fault line|Builder move)\s*[—–:-]\s*/gi;
+  const matches = [...cleaned.matchAll(pattern)];
+  if (matches.length < 2) return null;
+
+  const labelMap = {
+    signal: { key: "signal", label: "What happened" },
+    "fault line": { key: "fault-line", label: "Why it matters" },
+    "builder move": { key: "builder-move", label: "What builders should do" },
+  } as const;
+
+  return matches.map((match, index) => {
+    const normalized = match[1]?.toLowerCase() as keyof typeof labelMap;
+    const meta = labelMap[normalized];
+    const start = (match.index ?? 0) + match[0].length;
+    const end = matches[index + 1]?.index ?? cleaned.length;
+    return {
+      ...meta,
+      copy: cleaned.slice(start, end).trim(),
+    };
+  });
+}
+
 export function FeedPanel({
   posts,
   loading,
@@ -56,7 +106,7 @@ export function FeedPanel({
       <header className="panel-header">
         <div>
           <span className="panel-kicker">Published record</span>
-          <h2 id="feed-title">Mira’s field notes</h2>
+          <h2 id="feed-title">Published by Mira</h2>
         </div>
         <span className="panel-count">{posts.length} posts</span>
       </header>
