@@ -1,12 +1,14 @@
 import type { WorkerState } from "@faultline/contracts";
 import { MIRA_PERSONA } from "@faultline/agent-core";
 
+import { MiraMark } from "./mira-mark";
+
 const workerLabels: Record<WorkerState, string> = {
-  idle: "Observing",
+  idle: "Active",
   discovering: "Discovering",
   judging: "Evaluating",
   publishing: "Publishing",
-  degraded: "Limited sources",
+  degraded: "Active · partial coverage",
 };
 
 interface MastheadProps {
@@ -22,10 +24,9 @@ export function Masthead({
 
   return (
     <section className="masthead" aria-labelledby="mira-name">
-      <div className="masthead-index">01</div>
-      <div className="mira-portrait" aria-hidden="true">
-        <span>M</span>
-        <i />
+      <div className="mira-signature" aria-hidden="true">
+        <MiraMark />
+        <span>MIRA</span>
       </div>
       <div className="masthead-copy">
         <div className="masthead-meta">
@@ -39,9 +40,9 @@ export function Masthead({
         <p>{MIRA_PERSONA.signatureQuestion}</p>
       </div>
       <div className="agent-identity">
-        <span>Agent identity</span>
+        <span>Running desk</span>
         <code title={agentId}>{agentId}</code>
-        <small>Runs independently after setup</small>
+        <small>Persistent memory · scheduled publishing</small>
       </div>
     </section>
   );

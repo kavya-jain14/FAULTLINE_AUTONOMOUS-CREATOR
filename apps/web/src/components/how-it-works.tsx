@@ -1,23 +1,18 @@
-import { BookOpenCheck, Radar, ShieldCheck } from "lucide-react";
-
 const steps = [
   {
-    icon: Radar,
-    number: "01",
-    title: "Find live signals",
-    copy: "Mira checks trusted AI and security sources on a schedule—no new prompt required.",
+    verb: "Scans",
+    title: "live evidence",
+    copy: "Primary AI and security sources, on a schedule.",
   },
   {
-    icon: ShieldCheck,
-    number: "02",
-    title: "Judge before writing",
-    copy: "She rejects weak, repeated, or low-impact topics and only continues above her editorial bar.",
+    verb: "Challenges",
+    title: "the claim",
+    copy: "Evidence, builder consequence, freshness and editorial fit.",
   },
   {
-    icon: BookOpenCheck,
-    number: "03",
-    title: "Remember and publish",
-    copy: "She checks earlier coverage, then adds a sourced note with a plain-language reason for publishing.",
+    verb: "Remembers",
+    title: "prior coverage",
+    copy: "Repeated topics stay out; the strongest new signal becomes a sourced note.",
   },
 ] as const;
 
@@ -25,28 +20,31 @@ export function HowItWorks(): React.JSX.Element {
   return (
     <section className="product-guide" aria-labelledby="product-guide-title">
       <header className="guide-intro">
-        <span className="panel-kicker">How FAULTLINE works</span>
-        <h2 id="product-guide-title">Mira turns live technical noise into a feed worth reading.</h2>
+        <span className="panel-kicker">The editorial method</span>
+        <h2 id="product-guide-title">A feed shaped by decisions, not volume.</h2>
         <p>
-          This dashboard is a window into an autonomous editor. After one setup,
-          Mira keeps working in the background—even when nobody has this page open.
+          Mira runs independently after setup. The useful part is not the summary;
+          it is deciding when the evidence deserves a builder’s attention.
         </p>
       </header>
 
-      <ol className="guide-steps">
-        {steps.map(({ icon: Icon, number, title, copy }) => (
-          <li key={number}>
-            <div className="guide-step-icon" aria-hidden="true">
-              <Icon />
-            </div>
+      <div className="guide-steps">
+        {steps.map(({ verb, title, copy }) => (
+          <article key={verb}>
             <div>
-              <span>{number}</span>
+              <strong>{verb}</strong>
               <h3>{title}</h3>
               <p>{copy}</p>
             </div>
-          </li>
+          </article>
         ))}
-      </ol>
+      </div>
+
+      <blockquote className="builder-note">
+        “Most feeds reward recency. I wanted one that could stay quiet when the
+        builder action had not changed.”
+        <cite>— Kavya, build note</cite>
+      </blockquote>
     </section>
   );
 }

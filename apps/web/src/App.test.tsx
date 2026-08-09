@@ -120,10 +120,13 @@ describe("FAULTLINE control room", () => {
     window.localStorage.setItem("faultline.connectedAgentId", "agent-mira");
     render(<App />);
 
-    expect(await screen.findByText("Find live signals")).toBeVisible();
-    expect(screen.getByText("Judge before writing")).toBeVisible();
-    expect(screen.getByText("Remember and publish")).toBeVisible();
-    expect(screen.getByText(/keeps working in the background/i)).toBeVisible();
+    expect(
+      await screen.findByText("A feed shaped by decisions, not volume."),
+    ).toBeVisible();
+    expect(screen.getByText("live evidence")).toBeVisible();
+    expect(screen.getByText("the claim")).toBeVisible();
+    expect(screen.getByText("prior coverage")).toBeVisible();
+    expect(screen.getByText(/Most feeds reward recency/i)).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: /switch to dark mode/i }));
     expect(document.documentElement).toHaveAttribute("data-theme", "dark");
@@ -145,6 +148,8 @@ describe("FAULTLINE control room", () => {
     expect(initCall?.[1]).toMatchObject({ method: "POST" });
 
     await screen.findByText("Newest reliability note");
+    expect(document.body).not.toHaveTextContent("###");
+    expect(document.body).not.toHaveTextContent("**Newest reliability note**");
     expect(screen.getByText("What happened")).toBeVisible();
     expect(screen.getByText("Why it matters")).toBeVisible();
     expect(screen.getByText("What builders should do")).toBeVisible();
@@ -169,7 +174,9 @@ describe("FAULTLINE control room", () => {
     await screen.findByText("Newest reliability note");
     await user.click(screen.getByRole("button", { name: /topics skipped/i }));
 
-    expect(screen.getByText("Benchmark claim without reproducible evidence")).toBeVisible();
+    expect(
+      screen.getAllByText("Benchmark claim without reproducible evidence"),
+    ).toHaveLength(2);
     expect(screen.getByLabelText("Rejected")).toBeVisible();
     expect(screen.getByLabelText("Editorial score 48 out of 100")).toBeVisible();
   });
@@ -202,5 +209,34 @@ describe("FAULTLINE control room", () => {
       expect(screen.getByText("Operational telemetry is degraded")).toBeVisible(),
     );
     expect(screen.getByText("Verified post remains readable")).toBeVisible();
+  });
+
+  it("shows a deliberate source-outage state without making the feed look broken", async () => {
+    const offlineSnapshot = {
+      ...snapshot,
+      health: [
+        {
+          key: "sources",
+          label: "Primary sources",
+          state: "offline",
+          detail: "No live source responded during the latest scan.",
+          checkedAt: "2026-08-08T12:30:00Z",
+        },
+      ],
+    };
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/api/agent/control-room")) return response(offlineSnapshot);
+      if (url.includes("/api/agent/feed")) return response({ posts: [] });
+      return response({ message: "not found" }, 404);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    window.localStorage.setItem("faultline.connectedAgentId", "agent-mira");
+
+    render(<App />);
+
+    expect(await screen.findByText("Source scan paused")).toBeVisible();
+    expect(screen.getByText(/Existing notes and editorial memory remain available/i)).toBeVisible();
+    expect(screen.getByText("No topic cleared the editorial bar.")).toBeVisible();
   });
 });

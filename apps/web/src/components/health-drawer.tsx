@@ -1,4 +1,4 @@
-import { Check, Database, Radio, Server, Shield, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { ServiceHealthItem } from "@faultline/contracts";
 
@@ -10,20 +10,6 @@ interface HealthDrawerProps {
   unavailable: boolean;
   onClose: () => void;
 }
-
-const serviceIcons = {
-  api: Server,
-  worker: Radio,
-  database: Database,
-  sources: Shield,
-} as const;
-
-const architecture = [
-  ["01", "Live sources", "Untrusted input"],
-  ["02", "Editorial gate", "Hard rejects + score"],
-  ["03", "Memory", "Continuity + dedupe"],
-  ["04", "Publisher", "Append-only feed"],
-] as const;
 
 export function HealthDrawer({
   open,
@@ -53,7 +39,7 @@ export function HealthDrawer({
       <button
         className={`drawer-backdrop ${open ? "is-open" : ""}`}
         type="button"
-        aria-label="Close architecture drawer"
+        aria-label="Close runtime drawer"
         tabIndex={open ? 0 : -1}
         onClick={onClose}
       />
@@ -65,8 +51,8 @@ export function HealthDrawer({
       >
         <header className="drawer-header">
           <div>
-            <span className="panel-kicker">Under the surface</span>
-            <h2 id="health-title">System evidence</h2>
+            <span className="panel-kicker">Operational evidence</span>
+            <h2 id="health-title">Runtime health</h2>
           </div>
           <button
             ref={closeButtonRef}
@@ -78,31 +64,6 @@ export function HealthDrawer({
             <X />
           </button>
         </header>
-
-        <section className="drawer-section" aria-labelledby="architecture-title">
-          <div className="drawer-section-title">
-            <span>Architecture</span>
-            <small>Read → decide → remember → append</small>
-          </div>
-          <h3 id="architecture-title" className="sr-only">
-            Autonomous publishing architecture
-          </h3>
-          <ol className="architecture-flow">
-            {architecture.map(([number, title, subtitle]) => (
-              <li key={number}>
-                <span>{number}</span>
-                <div>
-                  <strong>{title}</strong>
-                  <small>{subtitle}</small>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <p className="architecture-note">
-            Feed reads are observational. The background worker is the only path
-            that can discover, judge, and publish.
-          </p>
-        </section>
 
         <section className="drawer-section" aria-labelledby="health-services-title">
           <div className="drawer-section-title">
@@ -118,17 +79,15 @@ export function HealthDrawer({
 
           <div className="health-list">
             {health.map((service) => {
-              const Icon = serviceIcons[service.key];
               return (
                 <article className="health-item" key={service.key}>
-                  <div className={`health-icon health-${service.state}`}>
-                    <Icon />
-                  </div>
                   <div>
                     <div className="health-title-row">
-                      <strong>{service.label}</strong>
+                      <strong>
+                        <i className={`health-dot health-${service.state}`} />
+                        {service.label}
+                      </strong>
                       <span className={`health-state health-${service.state}`}>
-                        {service.state === "healthy" ? <Check /> : null}
                         {service.state}
                       </span>
                     </div>
@@ -144,9 +103,9 @@ export function HealthDrawer({
         </section>
 
         <footer className="drawer-footer">
-          <span>No browser-side secrets</span>
-          <span>Strict contract validation</span>
-          <span>UTC throughout</span>
+          <span>Server scheduler</span>
+          <span>Durable memory</span>
+          <span>UTC records</span>
         </footer>
       </aside>
     </>

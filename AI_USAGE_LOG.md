@@ -129,6 +129,20 @@ This log records material AI assistance used during the Vicodathon build. It is 
 - **Rejected or changed AI suggestions:** Kept a single dashboard instead of adding marketing or authentication pages; kept published rationale visible instead of hiding proof behind a modal.
 - **Secrets or personal data:** None included.
 
+## 2026-08-10 — KAVYA-08 editorial human pass
+
+- **Tool:** ChatGPT Work (Codex) with GitHub integration
+- **Human owner:** Kavya Jain
+- **Objective:** Remove demo-day AI-dashboard tells, repair raw source prose, and make Mira's editorial judgment the clearest proof of autonomy.
+- **Prompt or interaction summary:** Kavya supplied a prioritized critique covering literal Markdown and mid-word truncation, repeated pipeline explainers, defensive copy, an unexplained score badge, stock icon tiles, a placeholder monogram, inconsistent degraded states, missing human fingerprints, and a buried rejection ledger. She also supplied a geometric MIRA mark direction.
+- **Output used:** Added source-markup normalization and word-boundary excerpts at generation and presentation time; corrected the control-room ledger to contain only rejected decisions; replaced the placeholder portrait with a custom code-native Mira mark; consolidated the product explanation into one editorial method; made withheld decisions permanently visible beside the feed; reduced boxed surfaces, icon tiles, and repeated numbering; quieted the 72/100 threshold with its criteria explained inline; added concise operational states and an intentional all-sources-offline treatment.
+- **Files influenced:** `apps/api/src/editorial/generator.ts`, `apps/api/src/app.ts`, backend tests, `apps/web/src/App.tsx`, control-room and initialization components, frontend tests, `apps/web/src/styles.css`, and this log.
+- **Human constraints applied:** Preserved the warm ivory, oxblood, brass, forest, serif, and italic editorial identity; kept the evaluator API unauthenticated; preserved append-only published records; did not add marketing pages, authentication, social posting, stock imagery, or extra autonomous agents.
+- **Automated verification performed:** Strict TypeScript, 34/34 unit/component/backend tests, production Vite build, and whitespace validation passed. Coverage now includes Markdown removal, sentence/word-safe truncation, reject-only ledger truth, visible decision evidence, theme persistence, and a designed all-sources-offline state.
+- **Related branch/PR:** `agent/editorial-human-pass`; PR pending publication.
+- **Rejected or changed AI suggestions:** Did not rewrite an already-published database row because that would violate append-only memory; instead cleaned existing records at display time and prevented future raw source syntax in the generator. Recreated the supplied visual direction as an original SVG rather than adding a raster logo dependency.
+- **Secrets or personal data:** None included.
+
 ## Entry template
 
 Copy this section for each material AI-assisted change:

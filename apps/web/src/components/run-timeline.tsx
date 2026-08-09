@@ -1,14 +1,6 @@
-import { Activity, Check, LoaderCircle, TriangleAlert, X } from "lucide-react";
 import type { RunTimelineItem } from "@faultline/contracts";
 
 import { formatCompactUtc } from "../lib/time";
-
-const statusIcon = {
-  completed: Check,
-  running: LoaderCircle,
-  partial: TriangleAlert,
-  failed: X,
-} as const;
 
 const statusLabel = {
   completed: "Completed",
@@ -35,7 +27,6 @@ export function RunTimeline({
           <span className="panel-kicker">What Mira did over time</span>
           <h2 id="timeline-title">Independent scans</h2>
         </div>
-        <Activity />
       </header>
 
       {unavailable || runs.length === 0 ? (
@@ -49,12 +40,9 @@ export function RunTimeline({
       ) : (
         <ol className="timeline-list">
           {runs.slice(0, 8).map((run) => {
-            const Icon = statusIcon[run.status];
             return (
               <li key={run.id} className={`timeline-${run.status}`}>
-                <div className="timeline-marker">
-                  <Icon />
-                </div>
+                <div className="timeline-marker" aria-hidden="true" />
                 <div className="timeline-content">
                   <div className="timeline-title-row">
                     <strong>{statusLabel[run.status]}</strong>
@@ -76,7 +64,7 @@ export function RunTimeline({
       )}
 
       <button className="architecture-link" type="button" onClick={onOpenHealth}>
-        Inspect architecture &amp; system health
+        Open runtime health
         <span>↗</span>
       </button>
     </section>

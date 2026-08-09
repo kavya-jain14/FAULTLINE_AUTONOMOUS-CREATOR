@@ -15,18 +15,39 @@ export interface SelectionContext {
   runnerUpScore: number | null;
 }
 
-function clean(value: string): string {
-  return value.replace(/\s+/g, " ").trim();
+export function normalizeSourceProse(value: string): string {
+  return value
+    .replace(/```[a-z]*|```/gi, " ")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/#{1,6}\s+/g, "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
-function limit(value: string, maximum: number): string {
-  const cleaned = clean(value);
+export function wordSafeLimit(value: string, maximum: number): string {
+  const cleaned = normalizeSourceProse(value);
 
   if (cleaned.length <= maximum) {
     return cleaned;
   }
 
-  return `${cleaned.slice(0, maximum - 1).trimEnd()}…`;
+  const window = cleaned.slice(0, maximum);
+  const sentenceBoundary = Math.max(
+    window.lastIndexOf(". "),
+    window.lastIndexOf("? "),
+    window.lastIndexOf("! "),
+  );
+  const wordBoundary = window.lastIndexOf(" ");
+  const cutAt =
+    sentenceBoundary >= Math.round(maximum * 0.52)
+      ? sentenceBoundary + 1
+      : wordBoundary;
+
+  return `${window.slice(0, Math.max(1, cutAt)).trimEnd()}…`;
 }
 
 function faultLine(candidate: SourceCandidate): string {
@@ -81,7 +102,7 @@ export function generateEditorialPost(
   selection: SelectionContext,
   generatedAt = new Date(),
 ): GeneratedPost {
-  const signal = limit(`${candidate.title}: ${candidate.summary}`, 900);
+  const signal = wordSafeLimit(`${candidate.title}: ${candidate.summary}`, 560);
   const text = [
     `Signal — ${signal}`,
     `Fault line — ${faultLine(candidate)}`,
@@ -90,13 +111,13 @@ export function generateEditorialPost(
 
   const competition =
     selection.runnerUpScore === null
-      ? `It was the only candidate to clear the ${score.threshold}/100 publication bar in this cycle.`
-      : `It ranked first by editorial score and source recency; the next qualified candidate scored ${selection.runnerUpScore}/100, while ${selection.candidatesRejected} candidates were rejected or deferred.`;
+      ? `It was the only candidate to clear the publication bar in this cycle.`
+      : `The next qualified candidate scored ${selection.runnerUpScore}/100; ${selection.candidatesRejected} alternatives stayed out of the feed.`;
 
   const rationale = [
-    `Selected because ${agent.personaName}'s ${agent.personaDomain} policy scored this primary-source development ${score.total}/100 for authority, impact, freshness, novelty, and builder value.`,
+    `Selected because ${agent.personaName}'s ${agent.personaDomain} policy linked a primary-source change to a concrete builder action and ranked it first at ${score.total}/100.`,
     relevantNow(candidate, score),
-    `Chosen over ${Math.max(0, selection.candidatesConsidered - 1)} alternatives because ${competition}`,
+    `Chosen over ${Math.max(0, selection.candidatesConsidered - 1)} alternatives. ${competition}`,
   ].join(" ");
 
   return {
