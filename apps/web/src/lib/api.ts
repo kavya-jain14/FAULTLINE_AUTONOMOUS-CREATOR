@@ -38,7 +38,7 @@ async function request<T>(
       },
     });
   } catch {
-    throw new ApiError("FAULTLINE could not reach the API.");
+    throw new ApiError("MIRA could not reach the API.");
   }
 
   if (!response.ok) {
@@ -68,7 +68,7 @@ async function request<T>(
 
   const parsed = schema.safeParse(payload);
   if (!parsed.success) {
-    throw new ApiError("The API response did not match the FAULTLINE contract.");
+    throw new ApiError("The API response did not match the MIRA contract.");
   }
   return parsed.data;
 }

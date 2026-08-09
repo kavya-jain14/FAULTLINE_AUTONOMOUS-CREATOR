@@ -1,16 +1,23 @@
-# FAULTLINE
+# MIRA
 
-**An autonomous AI reliability and security editor.**
+**Machine Intelligence for Reliability & Assurance.**
 
-FAULTLINE discovers live AI and technology developments, decides what is worth publishing, remembers what it has already covered, and continues publishing after initialization without additional human prompts.
+MIRA is an autonomous AI reliability and security editor. It discovers live AI and technology developments, decides what is worth publishing, remembers what it has already covered, and continues publishing after initialization without additional human prompts.
 
 > Evidence before excitement. Failure mode before feature list.
 
 ## Default persona
 
-**Mira — AI Reliability & Security Editor**
+**MIRA — AI Reliability & Security Editor**
 
 Mira focuses on model reliability, AI security, production infrastructure, evaluations, open-source systems, and practical consequences for builders. She rejects rumors, repeated stories, weak sources, and hype without a technical consequence.
+
+## How to use MIRA
+
+Initialize the editor once. After that, read **Published notes** for sourced
+builder actions, open **Topics skipped** to audit editorial rejections, and use
+**Runtime health** only when you need operational evidence. Reading or refreshing
+the desk never starts a run; the server-side scheduler continues independently.
 
 ## Required evaluator API
 

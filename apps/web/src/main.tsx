@@ -6,7 +6,7 @@ import "./styles.css";
 
 const root = document.getElementById("root");
 if (root === null) {
-  throw new Error("FAULTLINE root element was not found");
+  throw new Error("MIRA root element was not found");
 }
 
 createRoot(root).render(
