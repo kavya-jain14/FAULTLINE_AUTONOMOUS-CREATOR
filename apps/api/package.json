@@ -1,0 +1,15 @@
+{
+  "name": "@faultline/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@faultline/agent-core": "0.1.0",
+    "@faultline/contracts": "0.1.0"
+  }
+}
