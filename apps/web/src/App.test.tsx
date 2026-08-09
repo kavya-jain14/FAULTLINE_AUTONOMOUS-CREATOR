@@ -75,7 +75,7 @@ function installConnectedApi(): ReturnType<typeof vi.fn> {
           {
             id: "newer",
             createdAt: "2026-08-08T12:20:00Z",
-            text: "Signal — Newest reliability note\n\nFault line — Builder risk increased.\n\nBuilder move — Patch the exposed path now.",
+            text: "Signal — ### **Newest reliability note**\n\nFault line — Builder risk increased.\n\nBuilder move — Patch the exposed path now.",
             rationale: "Selected because a primary source changed builder risk now.",
             sources: ["https://research.example.com/newer"],
           },

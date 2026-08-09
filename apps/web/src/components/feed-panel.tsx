@@ -62,7 +62,9 @@ function cleanEditorialText(text: string): string {
   return text
     .replace(/```[a-z]*|```/gi, "")
     .replace(/`([^`]+)`/g, "$1")
-    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/#{1,6}\s+/g, "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 }

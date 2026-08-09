@@ -109,7 +109,7 @@ export default function App(): React.JSX.Element {
             <button className="degraded-notice" type="button" onClick={openHealth}>
               <span>Monitoring continues</span>
               {degradedServices.length === 1
-                ? `${degradedServices[0]?.label ?? "One source"} is temporarily limited. Mira is still running with the remaining live sources.`
+                ? "One live source is temporarily limited. Mira is still running with the remaining evidence."
                 : `${degradedServices.length} services are temporarily limited. Mira is still running with available evidence.`}
               <strong>View details ↗</strong>
             </button>
