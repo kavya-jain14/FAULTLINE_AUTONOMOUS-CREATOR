@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { MIRA_PERSONA } from "@faultline/agent-core";
 
 import { AutonomyStrip } from "./components/autonomy-strip";
+import { DecisionMargin } from "./components/decision-margin";
 import { EditorialLedger } from "./components/editorial-ledger";
 import { FeedPanel } from "./components/feed-panel";
 import { Header } from "./components/header";
@@ -52,15 +53,15 @@ export default function App(): React.JSX.Element {
 
   const completedRuns = useMemo(
     () =>
-      controlRoom.snapshot?.runs.filter((run) => run.status === "completed") ?? [],
+      controlRoom.snapshot?.runs.filter((run) => run.status !== "running") ?? [],
     [controlRoom.snapshot],
   );
 
   const telemetryUnavailable = controlRoom.telemetryError !== null;
-  const degradedServices =
-    controlRoom.snapshot?.health.filter(
-      (service) => service.state === "degraded" || service.state === "offline",
-    ) ?? [];
+  const sourcesOffline =
+    controlRoom.snapshot?.health.some(
+      (service) => service.key === "sources" && service.state === "offline",
+    ) ?? false;
 
   return (
     <div className="app-shell" id="top">
@@ -105,13 +106,12 @@ export default function App(): React.JSX.Element {
             onRetry={() => void controlRoom.refresh()}
           />
 
-          {degradedServices.length > 0 && controlRoom.telemetryError === null ? (
-            <button className="degraded-notice" type="button" onClick={openHealth}>
-              <span>Monitoring continues</span>
-              {degradedServices.length === 1
-                ? "One live source is temporarily limited. Mira is still running with the remaining evidence."
-                : `${degradedServices.length} services are temporarily limited. Mira is still running with available evidence.`}
-              <strong>View details ↗</strong>
+          {sourcesOffline && controlRoom.telemetryError === null ? (
+            <button className="source-outage" type="button" onClick={openHealth}>
+              <span>Source scan paused</span>
+              No live source responded in the latest cycle. Existing notes and
+              editorial memory remain available.
+              <strong>Runtime details ↗</strong>
             </button>
           ) : null}
 
@@ -132,7 +132,7 @@ export default function App(): React.JSX.Element {
               onClick={() => setDeskView("ledger")}
             >
               Topics skipped
-              <span>{controlRoom.snapshot?.editorialLedger.length ?? 0}</span>
+              <span>{controlRoom.snapshot?.autonomy.candidatesRejected ?? 0}</span>
             </button>
           </nav>
 
@@ -154,19 +154,21 @@ export default function App(): React.JSX.Element {
             </div>
 
             <aside className="desk-sidebar">
+              <DecisionMargin
+                items={controlRoom.snapshot?.editorialLedger ?? []}
+                totalRejected={
+                  controlRoom.snapshot?.autonomy.candidatesRejected ?? 0
+                }
+                unavailable={telemetryUnavailable}
+                onShowAll={() => setDeskView("ledger")}
+              />
+
               <RunTimeline
                 runs={controlRoom.snapshot?.runs ?? []}
                 unavailable={telemetryUnavailable}
                 onOpenHealth={openHealth}
               />
 
-              <div className="read-only-note">
-                <span>Read-only proof surface</span>
-                <p>
-                  Viewing or refreshing this dashboard never starts an autonomous
-                  run. New posts can only arrive from the scheduled worker.
-                </p>
-              </div>
             </aside>
           </div>
 

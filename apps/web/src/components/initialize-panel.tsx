@@ -1,4 +1,4 @@
-import { ArrowRight, Link2, ShieldCheck } from "lucide-react";
+import { ArrowRight, Link2 } from "lucide-react";
 import { useState } from "react";
 
 import { MIRA_PERSONA } from "@faultline/agent-core";
@@ -31,8 +31,8 @@ export function InitializePanel({
           <em>Mira finds the fault line.</em>
         </h1>
         <p className="hero-copy">
-          An autonomous AI reliability and security editor that discovers,
-          judges, remembers, and publishes without waiting for another prompt.
+          Most feeds tell you what is new. Mira decides what is worth
+          interrupting a builder for—and remembers what she has already covered.
         </p>
 
         <div className="persona-proof">
@@ -41,13 +41,6 @@ export function InitializePanel({
             <strong>Mira</strong>
           </div>
           <p>{MIRA_PERSONA.role}</p>
-          <div className="persona-lock">
-            <ShieldCheck aria-hidden="true" />
-            <span>
-              Identity fixed
-              <small>Voice consistent</small>
-            </span>
-          </div>
         </div>
 
         {error !== null ? (
@@ -66,57 +59,40 @@ export function InitializePanel({
             {isInitializing ? "Initializing Mira…" : "Initialize autonomous editor"}
             <ArrowRight />
           </button>
-          <span className="one-call-note">One durable initialization call</span>
+          <span className="one-call-note">Starts once. Then runs on schedule.</span>
         </div>
       </section>
 
       <aside className="operating-card" aria-label="Mira editorial decision system">
         <header className="decision-header">
           <div>
-            <div className="card-kicker">The editorial standard</div>
+            <div className="card-kicker">What earns a field note</div>
             <h2>Mira publishes only when the signal earns it.</h2>
           </div>
           <div className="gate-score" aria-label="Publish threshold 72 out of 100">
-            <strong>72</strong>
-            <span>minimum</span>
+            <span>Publish bar</span>
+            <strong>72/100</strong>
           </div>
         </header>
 
-        <section className="decision-route" aria-label="Autonomous editorial route">
-          <article>
-            <span>01</span>
-            <div>
-              <strong>Discover</strong>
-              <p>Read live primary technical sources.</p>
-            </div>
-          </article>
-          <article className="route-decision">
-            <span>02</span>
-            <div>
-              <strong>Decide</strong>
-              <p>Test evidence, builder consequence, and novelty.</p>
-            </div>
-            <em>72+ continues</em>
-          </article>
-          <article>
-            <span>03</span>
-            <div>
-              <strong>Remember</strong>
-              <p>Check durable coverage before writing.</p>
-            </div>
-          </article>
-          <article>
-            <span>04</span>
-            <div>
-              <strong>Publish</strong>
-              <p>Append a sourced field note with its rationale.</p>
-            </div>
-          </article>
-        </section>
+        <dl className="decision-criteria" aria-label="Editorial criteria">
+          <div>
+            <dt>Evidence</dt>
+            <dd>A reachable primary source must support the claim.</dd>
+          </div>
+          <div>
+            <dt>Consequence</dt>
+            <dd>The signal must change a builder’s next move.</dd>
+          </div>
+          <div>
+            <dt>Newness</dt>
+            <dd>Durable memory must show that the ground has moved.</dd>
+          </div>
+        </dl>
 
         <div className="reject-note">
-          <strong>Below the line</strong>
-          <p>Unsupported · repeated · no builder consequence</p>
+          <strong>The score is not a loophole.</strong>
+          <p>Unsupported, unsafe, off-domain or repeated claims are withheld regardless of points.</p>
         </div>
 
         <div className="existing-agent">
@@ -139,7 +115,7 @@ export function InitializePanel({
               Connect
             </button>
           </div>
-          <p>Connects this view only. It never initializes a second agent.</p>
+          <p>Reconnect to a saved desk without creating another.</p>
         </div>
       </aside>
     </main>

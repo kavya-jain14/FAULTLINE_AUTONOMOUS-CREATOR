@@ -56,8 +56,8 @@ export function Header({
               className="icon-button header-health"
               type="button"
               onClick={onOpenHealth}
-              aria-label="Open architecture and health"
-              title="Architecture and health"
+              aria-label="Open runtime health"
+              title="Runtime health"
             >
               <CircleHelp />
             </button>

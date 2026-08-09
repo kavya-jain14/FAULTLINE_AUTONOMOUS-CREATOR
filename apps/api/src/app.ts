@@ -94,14 +94,16 @@ export function buildControlRoom(agentId: string) {
       workerState: agent.workerState,
     },
 
-    editorialLedger: getDecisions(agentId).map((decision) => ({
-      id: decision.id,
-      title: decision.title,
-      finalScore: decision.finalScore,
-      reason: decision.reason,
-      sourceUrl: decision.sourceUrl,
-      decidedAt: decision.decidedAt,
-    })),
+    editorialLedger: getDecisions(agentId)
+      .filter((decision) => decision.verdict === "reject")
+      .map((decision) => ({
+        id: decision.id,
+        title: decision.title,
+        finalScore: decision.finalScore,
+        reason: decision.reason,
+        sourceUrl: decision.sourceUrl,
+        decidedAt: decision.decidedAt,
+      })),
 
     runs: getRuns(agentId).map((run) => ({
       id: run.id,

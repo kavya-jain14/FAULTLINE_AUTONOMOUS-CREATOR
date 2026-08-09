@@ -1,4 +1,4 @@
-import { ArrowUpRight, FileSearch, Newspaper } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import type { FeedPost } from "@faultline/contracts";
 
 import { formatCompactUtc, sourceLabel } from "../lib/time";
@@ -37,11 +37,8 @@ function FeedCard({ post, index }: { post: FeedPost; index: number }): React.JSX
       )}
 
       <section className="rationale-block" aria-label="Publishing rationale">
-        <div className="rationale-label">
-          <FileSearch />
-          Editorial rationale
-        </div>
-        <p>{post.rationale}</p>
+        <div className="rationale-label">Why Mira published it</div>
+        <p>{cleanRationale(post.rationale)}</p>
       </section>
 
       <footer className="source-row">
@@ -65,8 +62,36 @@ function cleanEditorialText(text: string): string {
     .replace(/#{1,6}\s+/g, "")
     .replace(/\*\*([^*]+)\*\*/g, "$1")
     .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/^\s*[-*+]\s+/gm, "")
     .replace(/\n{3,}/g, "\n\n")
+    .replace(/[ \t]{2,}/g, " ")
     .trim();
+}
+
+function wordSafeExcerpt(value: string, maximum: number): string {
+  const cleaned = cleanEditorialText(value);
+  if (cleaned.length <= maximum) return cleaned;
+
+  const window = cleaned.slice(0, maximum);
+  const sentenceBoundary = Math.max(
+    window.lastIndexOf(". "),
+    window.lastIndexOf("? "),
+    window.lastIndexOf("! "),
+  );
+  const wordBoundary = window.lastIndexOf(" ");
+  const cutAt =
+    sentenceBoundary >= Math.round(maximum * 0.52)
+      ? sentenceBoundary + 1
+      : wordBoundary;
+
+  return `${window.slice(0, Math.max(1, cutAt)).trimEnd()}…`;
+}
+
+function cleanRationale(value: string): string {
+  return cleanEditorialText(value)
+    .replace(/because It\b/g, "because it")
+    .replace(/\s+/g, " ");
 }
 
 function parsePost(text: string): Array<{
@@ -92,7 +117,10 @@ function parsePost(text: string): Array<{
     const end = matches[index + 1]?.index ?? cleaned.length;
     return {
       ...meta,
-      copy: cleaned.slice(start, end).trim(),
+      copy: wordSafeExcerpt(
+        cleaned.slice(start, end),
+        meta.key === "signal" ? 560 : 720,
+      ),
     };
   });
 }
@@ -123,7 +151,6 @@ export function FeedPanel({
 
       {!loading && feedError === null && posts.length === 0 ? (
         <div className="empty-state">
-          <Newspaper />
           <span className="empty-number">00</span>
           <h3>
             {hadCompletedRun
@@ -132,8 +159,8 @@ export function FeedPanel({
           </h3>
           <p>
             {hadCompletedRun
-              ? "That is intentional editorial judgment—not a stalled feed. The rejected-candidate ledger records why Mira stayed silent."
-              : "New posts will appear here after an autonomous run qualifies a live signal. Refreshing this page never creates content."}
+              ? "Mira found no item with enough evidence, consequence and novelty. The latest withheld decisions are visible beside the feed."
+              : "Mira is scanning live sources. The first note will appear after a topic clears editorial review."}
           </p>
         </div>
       ) : null}

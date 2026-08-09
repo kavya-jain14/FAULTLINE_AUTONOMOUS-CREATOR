@@ -111,7 +111,8 @@ describe("durable autonomous runtime", () => {
 
     const snapshot = appModule.buildControlRoom(agentId);
     expect(snapshot?.runs).toHaveLength(1);
-    expect(snapshot?.editorialLedger).toHaveLength(2);
+    expect(snapshot?.editorialLedger).toHaveLength(1);
+    expect(snapshot?.editorialLedger[0]?.title).toBe(weakCandidate().title);
     expect(snapshot?.autonomy.postsPublished).toBe(1);
     expect(snapshot?.autonomy.candidatesRejected).toBe(1);
     expect(snapshot?.health.find((item) => item.key === "sources")?.state).toBe(
