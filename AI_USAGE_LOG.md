@@ -168,6 +168,19 @@ This log records material AI assistance used during the Vicodathon build. It is 
 - **Related branch/PR:** `agent/mira-favicon`.
 - **Secrets or personal data:** None included.
 
+## 2026-08-10 — KAVYA-11 autonomous backlog and decision-ledger repair
+
+- **Tool:** ChatGPT Work (Codex)
+- **Human owner:** Kavya Jain
+- **Objective:** Repair the production behavior where only one note appeared over time and the decision ledger was flooded by repeated duplicate observations.
+- **Prompt or interaction summary:** Kavya noticed that the decision ledger did not behave like a useful editorial record and that the same single published note remained visible across autonomous cycles, which could weaken the autonomy demonstration.
+- **Output used:** Changed durable-memory handling so only already-published fingerprints are permanently blocked; kept qualified but deferred candidates eligible for later scheduled cycles; stopped repeated observations from creating duplicate ledger rows; collapsed historical records to one current decision per source; removed deferred topics after they are eventually published; indexed the ledger query; and normalized legacy Markdown at the public feed boundary without mutating append-only records.
+- **Files influenced:** Autonomous pipeline, worker decision persistence, SQLite decision queries/indexes, public feed serialization, backend/editorial regression tests, and this log.
+- **Human constraints applied:** Preserved the one-post-per-cycle pace, append-only published storage, read-only feed semantics, 72/100 editorial gate, durable deduplication, public evaluator endpoints, and single-agent architecture.
+- **Automated verification performed:** Strict TypeScript, all 37 contract/component/backend tests, production build, and whitespace validation passed. Regression coverage proves that a second qualified topic publishes in a later cycle, published topics remain blocked, repeated decisions collapse to a unique ledger, and legacy feed text is clean at the API boundary.
+- **Related branch/PR:** `agent/autonomy-ledger-repair`; PR pending publication.
+- **Secrets or personal data:** None included.
+
 ## Entry template
 
 Copy this section for each material AI-assisted change:
