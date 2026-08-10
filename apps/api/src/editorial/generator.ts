@@ -50,6 +50,27 @@ export function wordSafeLimit(value: string, maximum: number): string {
   return `${window.slice(0, Math.max(1, cutAt)).trimEnd()}…`;
 }
 
+export function normalizePublishedPostText(value: string): string {
+  const cleaned = normalizeSourceProse(value);
+  const sectionPattern =
+    /(?:^|\s)(Signal|Fault line|Builder move)\s*[—–:-]\s*/gi;
+  const matches = [...cleaned.matchAll(sectionPattern)];
+
+  if (matches.length < 2) {
+    return wordSafeLimit(cleaned, 1_200);
+  }
+
+  return matches
+    .map((match, index) => {
+      const label = match[1] ?? "Signal";
+      const start = (match.index ?? 0) + match[0].length;
+      const end = matches[index + 1]?.index ?? cleaned.length;
+      const maximum = label.toLowerCase() === "signal" ? 520 : 720;
+      return `${label} — ${wordSafeLimit(cleaned.slice(start, end), maximum)}`;
+    })
+    .join("\n\n");
+}
+
 function faultLine(candidate: SourceCandidate): string {
   const text = `${candidate.title} ${candidate.summary} ${candidate.rawContent ?? ""}`.toLowerCase();
 
@@ -102,7 +123,7 @@ export function generateEditorialPost(
   selection: SelectionContext,
   generatedAt = new Date(),
 ): GeneratedPost {
-  const signal = wordSafeLimit(`${candidate.title}: ${candidate.summary}`, 560);
+  const signal = wordSafeLimit(`${candidate.title}: ${candidate.summary}`, 520);
   const text = [
     `Signal — ${signal}`,
     `Fault line — ${faultLine(candidate)}`,

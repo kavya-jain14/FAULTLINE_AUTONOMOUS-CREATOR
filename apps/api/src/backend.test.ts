@@ -27,13 +27,25 @@ function strongCandidate(): SourceCandidate {
   };
 }
 
+function secondStrongCandidate(): SourceCandidate {
+  return {
+    ...strongCandidate(),
+    sourceId: "CIVN-2026-9998",
+    title: "Critical authentication bypass in an AI gateway",
+    summary:
+      "CERT-In reports a critical authentication bypass in an internet-facing AI gateway and recommends applying the vendor security update immediately.",
+    url: "https://www.cert-in.org.in/example/CIVN-2026-9998",
+    publishedAt: "2026-08-09T09:00:00.000Z",
+  };
+}
+
 function weakCandidate(): SourceCandidate {
   return {
     sourceId: "OFF-TOPIC-1",
     sourceKind: "cert-in",
     title: "Quarterly lifestyle update",
     summary:
-      "A non-technical lifestyle announcement without a software, artificial intelligence, reliability, or security consequence.",
+      "A quarterly lifestyle announcement about office cafeteria menus, employee clubs, and upcoming social events.",
     url: "https://www.cert-in.org.in/example/OFF-TOPIC-1",
     publishedAt: "2026-08-09T10:00:00.000Z",
     sourceName: "CERT-In Advisories",
@@ -120,7 +132,7 @@ describe("durable autonomous runtime", () => {
     );
   });
 
-  it("blocks exact duplicates from durable memory on the next cycle", async () => {
+  it("blocks published duplicates without duplicating ledger decisions", async () => {
     const agentId = "agent-first-cycle";
     const registry = new SourceRegistry(
       [new FixedAdapter([strongCandidate(), weakCandidate()])],
@@ -135,12 +147,98 @@ describe("durable autonomous runtime", () => {
 
     expect(result).toMatchObject({
       discovered: 2,
-      duplicates: 2,
+      duplicates: 1,
       published: 0,
       rejected: 2,
     });
     expect(dbModule.getPosts(agentId)).toHaveLength(1);
-    expect(dbModule.countRejected(agentId)).toBe(3);
+    expect(dbModule.countRejected(agentId)).toBe(1);
+    expect(dbModule.getRejectedDecisions(agentId)).toHaveLength(1);
+  });
+
+  it("publishes a qualified deferred topic during a later autonomous cycle", async () => {
+    const agentId = "agent-paced-backlog";
+    dbModule.createAgent({
+      agentId,
+      personaName: "Mira",
+      personaDomain: "AI Reliability & Security",
+      initializedAt: NOW.toISOString(),
+      nextRunAt: NOW.toISOString(),
+    });
+    const registry = new SourceRegistry(
+      [new FixedAdapter([strongCandidate(), secondStrongCandidate()])],
+      { retries: 0, timeoutMs: 1_000 },
+    );
+
+    const first = await workerModule.runAgentOnce(agentId, {
+      sourceRegistry: registry,
+      clock: () => NOW,
+      runtime: { scheduleJitterMs: 0, maxPostsPerRun: 1 },
+    });
+    const second = await workerModule.runAgentOnce(agentId, {
+      sourceRegistry: registry,
+      clock: () => new Date(NOW.getTime() + 60_000),
+      runtime: { scheduleJitterMs: 0, maxPostsPerRun: 1 },
+    });
+
+    expect(first).toMatchObject({ published: 1, rejected: 1, duplicates: 0 });
+    expect(second).toMatchObject({ published: 1, rejected: 1, duplicates: 1 });
+    expect(dbModule.getPosts(agentId)).toHaveLength(2);
+    expect(dbModule.countRejected(agentId)).toBe(0);
+    expect(appModule.buildControlRoom(agentId)?.editorialLedger).toHaveLength(0);
+  });
+
+  it("collapses historical duplicate decisions into a current unique ledger", () => {
+    const agentId = "agent-ledger-compaction";
+    const runId = "run-ledger-compaction";
+    dbModule.createAgent({
+      agentId,
+      personaName: "Mira",
+      personaDomain: "AI Reliability & Security",
+      initializedAt: NOW.toISOString(),
+      nextRunAt: new Date(NOW.getTime() + 24 * 60 * 60_000).toISOString(),
+    });
+    dbModule.createRun({ id: runId, agentId, startedAt: NOW.toISOString() });
+
+    const createDecision = (
+      id: string,
+      sourceUrl: string,
+      verdict: "publish" | "reject",
+      decidedAt: string,
+    ): void => {
+      dbModule.createDecision({
+        id,
+        runId,
+        agentId,
+        title: `Candidate ${id}`,
+        finalScore: verdict === "publish" ? 90 : 40,
+        verdict,
+        reason: verdict === "publish" ? "Selected." : "Withheld.",
+        sourceUrl,
+        decidedAt,
+      });
+    };
+
+    createDecision("reject-a-old", "https://example.com/a", "reject", NOW.toISOString());
+    createDecision(
+      "reject-a-latest",
+      "https://example.com/a",
+      "reject",
+      new Date(NOW.getTime() + 1_000).toISOString(),
+    );
+    createDecision("reject-b", "https://example.com/b", "reject", NOW.toISOString());
+    createDecision(
+      "publish-b",
+      "https://example.com/b",
+      "publish",
+      new Date(NOW.getTime() + 2_000).toISOString(),
+    );
+
+    expect(dbModule.countRejected(agentId)).toBe(1);
+    expect(dbModule.getRejectedDecisions(agentId).map((item) => item.id)).toEqual([
+      "reject-a-latest",
+    ]);
+    expect(appModule.buildControlRoom(agentId)?.editorialLedger).toHaveLength(1);
   });
 
   it("uses a durable lease so concurrent workers cannot double-publish", async () => {

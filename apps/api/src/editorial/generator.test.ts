@@ -5,6 +5,7 @@ import type { SourceCandidate } from "../sources/types.js";
 import type { EditorialScore } from "./judge.js";
 import {
   generateEditorialPost,
+  normalizePublishedPostText,
   normalizeSourceProse,
   wordSafeLimit,
 } from "./generator.js";
@@ -70,6 +71,21 @@ describe("editorial prose generation", () => {
       "This opening sentence carries enough useful context to stand alone.…",
     );
     expect(excerpt).not.toMatch(/bounda…$/);
+  });
+
+  it("cleans legacy stored posts at the public feed boundary", () => {
+    const legacy = [
+      `Signal — ### Summary **Untrusted command** \`npm run unsafe\` ${"detail ".repeat(100)}`,
+      "Fault line — A missed trust boundary becomes a control-plane problem.",
+      "Builder move — Patch the exposed path and verify the mitigation.",
+    ].join("\n\n");
+    const normalized = normalizePublishedPostText(legacy);
+
+    expect(normalized).not.toMatch(/###|\*\*|`/);
+    expect(normalized).toContain("Signal — Summary Untrusted command npm run unsafe");
+    expect(normalized).toContain("\n\nFault line —");
+    expect(normalized).toContain("\n\nBuilder move —");
+    expect(normalized.split("\n\n")[0]).not.toMatch(/detai…$/);
   });
 
   it("publishes clean, compact prose with transparent selection context", () => {
