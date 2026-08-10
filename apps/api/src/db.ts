@@ -168,6 +168,9 @@ db.exec(`
     detail TEXT NOT NULL,
     checked_at TEXT NOT NULL
   );
+
+  CREATE INDEX IF NOT EXISTS decisions_agent_source_verdict_idx
+    ON decisions(agent_id, source_url, verdict, decided_at);
 `);
 
 function columnNames(table: string): Set<string> {
@@ -435,8 +438,20 @@ export function createPost(input: {
 export function countRejected(agentId: string): number {
   const row = db.prepare(`
     SELECT COUNT(*) AS count
-    FROM decisions
-    WHERE agent_id = ? AND verdict = 'reject'
+    FROM (
+      SELECT rejected.source_url
+      FROM decisions AS rejected
+      WHERE rejected.agent_id = ?
+        AND rejected.verdict = 'reject'
+        AND NOT EXISTS (
+          SELECT 1
+          FROM decisions AS published
+          WHERE published.agent_id = rejected.agent_id
+            AND published.source_url = rejected.source_url
+            AND published.verdict = 'publish'
+        )
+      GROUP BY rejected.source_url
+    )
   `).get(agentId) as { count: number };
 
   return Number(row.count);
@@ -529,6 +544,40 @@ export function getDecisions(agentId: string, limit = 100): DecisionRecord[] {
     FROM decisions
     WHERE agent_id = ?
     ORDER BY decided_at DESC, id DESC
+    LIMIT ?
+  `).all(agentId, limit) as unknown as DecisionRecord[];
+}
+
+export function getRejectedDecisions(
+  agentId: string,
+  limit = 100,
+): DecisionRecord[] {
+  return db.prepare(`
+    SELECT rejected.id, rejected.run_id AS runId,
+      rejected.agent_id AS agentId, rejected.title,
+      rejected.final_score AS finalScore, rejected.verdict,
+      rejected.reason, rejected.source_url AS sourceUrl,
+      rejected.decided_at AS decidedAt
+    FROM decisions AS rejected
+    WHERE rejected.agent_id = ?
+      AND rejected.verdict = 'reject'
+      AND NOT EXISTS (
+        SELECT 1
+        FROM decisions AS published
+        WHERE published.agent_id = rejected.agent_id
+          AND published.source_url = rejected.source_url
+          AND published.verdict = 'publish'
+      )
+      AND rejected.id = (
+        SELECT latest.id
+        FROM decisions AS latest
+        WHERE latest.agent_id = rejected.agent_id
+          AND latest.source_url = rejected.source_url
+          AND latest.verdict = 'reject'
+        ORDER BY latest.decided_at DESC, latest.id DESC
+        LIMIT 1
+      )
+    ORDER BY rejected.decided_at DESC, rejected.id DESC
     LIMIT ?
   `).all(agentId, limit) as unknown as DecisionRecord[];
 }
