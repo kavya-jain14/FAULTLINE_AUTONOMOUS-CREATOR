@@ -174,11 +174,11 @@ This log records material AI assistance used during the Vicodathon build. It is 
 - **Human owner:** Kavya Jain
 - **Objective:** Repair the production behavior where only one note appeared over time and the decision ledger was flooded by repeated duplicate observations.
 - **Prompt or interaction summary:** Kavya noticed that the decision ledger did not behave like a useful editorial record and that the same single published note remained visible across autonomous cycles, which could weaken the autonomy demonstration.
-- **Output used:** Changed durable-memory handling so only already-published fingerprints are permanently blocked; kept qualified but deferred candidates eligible for later scheduled cycles; stopped repeated observations from creating duplicate ledger rows; collapsed historical records to one current decision per source; removed deferred topics after they are eventually published; indexed the ledger query; and normalized legacy Markdown at the public feed boundary without mutating append-only records.
+- **Output used:** Changed durable-memory handling so only already-published fingerprints are permanently blocked; kept qualified but deferred candidates eligible for later scheduled cycles; stopped repeated observations from creating duplicate ledger rows; collapsed historical records to one current decision per source while preferring its original editorial rationale over later duplicate observations; removed deferred topics after they are eventually published; indexed the ledger query; and normalized legacy Markdown at the public feed boundary without mutating append-only records.
 - **Files influenced:** Autonomous pipeline, worker decision persistence, SQLite decision queries/indexes, public feed serialization, backend/editorial regression tests, and this log.
 - **Human constraints applied:** Preserved the one-post-per-cycle pace, append-only published storage, read-only feed semantics, 72/100 editorial gate, durable deduplication, public evaluator endpoints, and single-agent architecture.
 - **Automated verification performed:** Strict TypeScript, all 37 contract/component/backend tests, production build, and whitespace validation passed. Regression coverage proves that a second qualified topic publishes in a later cycle, published topics remain blocked, repeated decisions collapse to a unique ledger, and legacy feed text is clean at the API boundary.
-- **Related branch/PR:** `agent/autonomy-ledger-repair`; PR pending publication.
+- **Related branch/PR:** `agent/autonomy-ledger-repair`, PR #17; final legacy-ledger rationale refinement on `agent/ledger-reason-repair`.
 - **Secrets or personal data:** None included.
 
 ## Entry template
