@@ -14,6 +14,7 @@ export interface ProcessedCandidate {
   decision: CandidateDecision;
   reasons: string[];
   fingerprint: string;
+  seenBefore: boolean;
   similarityToPublished: number;
   editorialScore: EditorialScore;
 }
@@ -36,13 +37,15 @@ export class EditorialPipeline {
 
     for (const candidate of candidates) {
       const fingerprint = createFingerprint(candidate);
+      const existing = this.memory.get(fingerprint);
+      const seenBefore = existing !== undefined;
       const similarityToPublished = this.memory.similarityToPublished(candidate);
 
-      if (this.memory.has(fingerprint)) {
+      if (existing?.publishedPostId) {
         this.memory.remember(candidate, fingerprint, now.toISOString());
 
         const editorialScore = rejectedByHardGate("near_duplicate", [
-          "Rejected because this exact source/topic fingerprint already exists in durable editorial memory.",
+          "Rejected because this exact source/topic has already been published.",
         ]);
 
         processed.push({
@@ -50,6 +53,7 @@ export class EditorialPipeline {
           decision: "duplicate",
           reasons: editorialScore.rationale,
           fingerprint,
+          seenBefore,
           similarityToPublished: 1,
           editorialScore,
         });
@@ -71,6 +75,7 @@ export class EditorialPipeline {
           decision: "rejected",
           reasons: editorialScore.rationale,
           fingerprint,
+          seenBefore,
           similarityToPublished,
           editorialScore,
         });
@@ -90,6 +95,7 @@ export class EditorialPipeline {
         decision: editorialScore.accepted ? "accepted" : "rejected",
         reasons: editorialScore.rationale,
         fingerprint,
+        seenBefore,
         similarityToPublished,
         editorialScore,
       });
