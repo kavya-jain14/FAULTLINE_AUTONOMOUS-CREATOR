@@ -205,26 +205,37 @@ describe("durable autonomous runtime", () => {
       sourceUrl: string,
       verdict: "publish" | "reject",
       decidedAt: string,
+      reason = verdict === "publish" ? "Selected." : "Withheld.",
+      finalScore = verdict === "publish" ? 90 : 40,
     ): void => {
       dbModule.createDecision({
         id,
         runId,
         agentId,
         title: `Candidate ${id}`,
-        finalScore: verdict === "publish" ? 90 : 40,
+        finalScore,
         verdict,
-        reason: verdict === "publish" ? "Selected." : "Withheld.",
+        reason,
         sourceUrl,
         decidedAt,
       });
     };
 
-    createDecision("reject-a-old", "https://example.com/a", "reject", NOW.toISOString());
     createDecision(
-      "reject-a-latest",
+      "reject-a-editorial",
+      "https://example.com/a",
+      "reject",
+      NOW.toISOString(),
+      "Rejected at 40/100 because the topic did not clear the editorial bar.",
+      40,
+    );
+    createDecision(
+      "reject-a-duplicate",
       "https://example.com/a",
       "reject",
       new Date(NOW.getTime() + 1_000).toISOString(),
+      "Rejected because this exact source/topic fingerprint already exists in durable editorial memory.",
+      0,
     );
     createDecision("reject-b", "https://example.com/b", "reject", NOW.toISOString());
     createDecision(
@@ -236,7 +247,7 @@ describe("durable autonomous runtime", () => {
 
     expect(dbModule.countRejected(agentId)).toBe(1);
     expect(dbModule.getRejectedDecisions(agentId).map((item) => item.id)).toEqual([
-      "reject-a-latest",
+      "reject-a-editorial",
     ]);
     expect(appModule.buildControlRoom(agentId)?.editorialLedger).toHaveLength(1);
   });
