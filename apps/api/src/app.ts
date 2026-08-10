@@ -13,12 +13,16 @@ import {
   countRejected,
   createAgent,
   getAgent,
-  getDecisions,
   getPosts,
+  getRejectedDecisions,
   getRuns,
   getSourceHealth,
 } from "./db.js";
 import { getRuntimeConfig, scheduleAt } from "./config.js";
+import {
+  normalizePublishedPostText,
+  normalizeSourceProse,
+} from "./editorial/generator.js";
 
 function sendJson(
   response: ServerResponse,
@@ -94,8 +98,7 @@ export function buildControlRoom(agentId: string) {
       workerState: agent.workerState,
     },
 
-    editorialLedger: getDecisions(agentId)
-      .filter((decision) => decision.verdict === "reject")
+    editorialLedger: getRejectedDecisions(agentId)
       .map((decision) => ({
         id: decision.id,
         title: decision.title,
@@ -296,8 +299,11 @@ export async function handleRequest(
       posts: posts.map((post) => ({
         id: post.id,
         createdAt: post.createdAt,
-        text: post.text,
-        rationale: post.rationale,
+        text: normalizePublishedPostText(post.text),
+        rationale: normalizeSourceProse(post.rationale).replace(
+          /because It\b/g,
+          "because it",
+        ),
         sources: post.sources,
       })),
     });
