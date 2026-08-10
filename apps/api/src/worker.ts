@@ -147,6 +147,12 @@ export async function runAgentOnce(
 
       for (const item of pipelineResult.processed) {
         const isSelected = selectedFingerprints.has(item.fingerprint);
+        const shouldRecordDecision = isSelected || !item.seenBefore;
+
+        if (!shouldRecordDecision) {
+          continue;
+        }
+
         const reason =
           item.decision === "accepted" && !isSelected
             ? `Deferred at ${item.editorialScore.total}/100 because a stronger candidate was selected for this paced publishing cycle.`
