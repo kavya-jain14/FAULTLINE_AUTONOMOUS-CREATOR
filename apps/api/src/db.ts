@@ -574,7 +574,15 @@ export function getRejectedDecisions(
         WHERE latest.agent_id = rejected.agent_id
           AND latest.source_url = rejected.source_url
           AND latest.verdict = 'reject'
-        ORDER BY latest.decided_at DESC, latest.id DESC
+        ORDER BY
+          CASE
+            WHEN latest.reason LIKE 'Rejected because this exact source/topic fingerprint already exists%'
+              OR latest.reason LIKE 'Rejected because this exact source/topic has already been published%'
+            THEN 1
+            ELSE 0
+          END ASC,
+          latest.decided_at DESC,
+          latest.id DESC
         LIMIT 1
       )
     ORDER BY rejected.decided_at DESC, rejected.id DESC
